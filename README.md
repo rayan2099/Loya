@@ -58,13 +58,21 @@ The Express server serves both `/api/*` and the built React app from `dist`.
 
 ## Deployment
 
-The current build is best deployed as a Node service on Render, Fly.io, Railway, or a VPS:
+### Vercel
+
+This repo includes Vercel serverless API routes in `api/`. The frontend still calls the same URLs, such as `/api/auth/register` and `/api/scan`, but Vercel now runs those through individual serverless handlers instead of `server.ts`.
+
+- Build command: `npm run build:vercel`
+- Output directory: `dist`
+- Required env vars: `NODE_ENV=production`, `SESSION_SECRET`, `DEFAULT_CASHIER_PIN`, `APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+
+### Node Hosts
+
+The Express server in `server.ts` can still be deployed on Render, Fly.io, Railway, or a VPS:
 
 - Build command: `npm ci && npm run build`
 - Start command: `npm start`
 - Required env vars: `NODE_ENV=production`, `SESSION_SECRET`, `DEFAULT_CASHIER_PIN`, `APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-
-Vercel deployment requires migrating the Express API into serverless functions or converting the app to Next.js App Router. The original product brief asked for Next.js 14; this repo is Vite/Express, so treat that as a future architecture migration rather than a finished requirement.
 
 ## Supabase Setup
 
