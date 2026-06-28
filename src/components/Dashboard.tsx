@@ -4,7 +4,8 @@ import { Business, Customer, Reward, DashboardStats } from "../types";
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from "recharts";
 import { 
   TrendingUp, Users, Award, CheckCircle2, QrCode, ClipboardList, 
-  Settings, Search, Printer, Download, Save, LogOut, Check, Sparkles, Copy, Eye, AlertCircle
+  Settings, Search, Printer, Download, Save, LogOut, Check, Sparkles, Copy, Eye, AlertCircle,
+  Store, Palette, ShieldCheck, ArrowLeft, ArrowRight, ExternalLink
 } from "lucide-react";
 
 interface DashboardProps {
@@ -48,6 +49,7 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
   const [rewardEn, setRewardEn] = useState(business?.reward_en || "");
   const [cashierPin, setCashierPin] = useState("");
   const [settingsSuccess, setSettingsSuccess] = useState(false);
+  const [settingsStep, setSettingsStep] = useState(0);
 
   // Link copy notifier
   const [copied, setCopied] = useState(false);
@@ -308,6 +310,34 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
   };
 
   const clientPortalUrl = `${window.location.origin}/b/${business.slug}`;
+  const settingsSteps = [
+    {
+      title: lang === "en" ? "Business identity" : "هوية المنشأة",
+      desc: lang === "en" ? "This is what guests see after scanning your QR code." : "هذه البيانات تظهر للعميل بعد مسح رمز QR.",
+      icon: <Store className="h-4 w-4" />
+    },
+    {
+      title: lang === "en" ? "Brand look" : "شكل العلامة",
+      desc: lang === "en" ? "Match the customer page with your restaurant colors and logo." : "اجعل صفحة العميل بنفس ألوان وشعار المطعم.",
+      icon: <Palette className="h-4 w-4" />
+    },
+    {
+      title: lang === "en" ? "Rewards engine" : "محرك المكافآت",
+      desc: lang === "en" ? "Choose what guests can win and how often loyalty rewards unlock." : "حدد ماذا يربح العميل ومتى تفتح مكافأة الولاء.",
+      icon: <Award className="h-4 w-4" />
+    },
+    {
+      title: lang === "en" ? "Cashier security" : "أمان الكاشير",
+      desc: lang === "en" ? "Cashiers use this PIN to mark rewards as claimed." : "يستخدم الكاشير هذا الرمز لتسليم الجوائز.",
+      icon: <ShieldCheck className="h-4 w-4" />
+    },
+    {
+      title: lang === "en" ? "Launch checklist" : "قائمة الإطلاق",
+      desc: lang === "en" ? "Print the QR, place it at checkout, and let guests scan after purchase." : "اطبع رمز QR وضعه عند الكاشير ليبدأ العملاء بالمسح بعد الشراء.",
+      icon: <QrCode className="h-4 w-4" />
+    }
+  ];
+  const currentSettingsStep = settingsSteps[settingsStep];
 
   return (
     <div className="bg-zinc-950 text-white min-h-screen selection:bg-amber-500 selection:text-black flex flex-col md:flex-row">
@@ -769,192 +799,257 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
 
             {/* TAB 5: SETTINGS */}
             {activeTab === "settings" && (
-              <div className="max-w-xl space-y-6 animate-fadeIn">
-                <div>
-                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                    <Settings className="h-6 w-6 text-amber-500" /> {t.dash_settings}
-                  </h2>
-                  <p className="text-xs text-zinc-400 mt-1">{t.settings_saved}</p>
+              <div className="max-w-6xl space-y-6 animate-fadeIn">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-500">
+                      {lang === "en" ? "Launch setup" : "إعداد الإطلاق"}
+                    </span>
+                    <h2 className="mt-2 text-2xl font-black text-white flex items-center gap-2">
+                      <Settings className="h-6 w-6 text-amber-500" />
+                      {lang === "en" ? "Set up your scan-to-win system" : "جهز نظام امسح واربح"}
+                    </h2>
+                    <p className="text-xs text-zinc-400 mt-2 max-w-2xl leading-relaxed">
+                      {lang === "en"
+                        ? "In a few steps, your restaurant gets a branded QR page, instant rewards, stamp loyalty, and a cashier claim flow. Save when you are done, then print the QR and place it at checkout or on tables."
+                        : "بخطوات بسيطة يحصل مطعمك على صفحة QR بهويتك، جوائز فورية، ولاء بالأختام، وطريقة تسليم للكاشير. احفظ الإعدادات ثم اطبع الرمز وضعه عند الكاشير أو على الطاولات."}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-100 max-w-sm">
+                    <p className="font-black text-amber-400">{lang === "en" ? "What staff will do" : "ماذا سيفعل الفريق"}</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-zinc-300">
+                      {lang === "en"
+                        ? "Cashier asks guests to scan after payment. Winners show a claim code. Staff verifies it in Pending Claims or /claim."
+                        : "الكاشير يطلب من العميل المسح بعد الدفع. الفائز يعرض كود الجائزة، والفريق يتحقق منه من صفحة الجوائز أو /claim."}
+                    </p>
+                  </div>
                 </div>
 
-                <form onSubmit={handleUpdateSettings} className="bg-zinc-900 border border-zinc-850 p-6 sm:p-8 rounded-2xl space-y-6 shadow-xl">
-                  
-                  {settingsSuccess && (
-                    <div className="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30 text-emerald-200 text-xs flex items-center gap-2">
-                      <Check className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span>{t.settings_saved}</span>
-                    </div>
-                  )}
+                <form onSubmit={handleUpdateSettings} className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
+                  <aside className="space-y-3">
+                    {settingsSteps.map((step, index) => {
+                      const active = settingsStep === index;
+                      return (
+                        <button
+                          key={step.title}
+                          type="button"
+                          onClick={() => setSettingsStep(index)}
+                          className={`w-full rounded-2xl border p-4 text-left transition-all cursor-pointer ${active ? "border-amber-500 bg-amber-500 text-black shadow-lg shadow-amber-500/10" : "border-zinc-850 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-white"}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${active ? "bg-black/10" : "bg-zinc-950"}`}>
+                              {step.icon}
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-wider">
+                              {lang === "en" ? `Step ${index + 1}` : `الخطوة ${index + 1}`}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm font-black">{step.title}</p>
+                          <p className={`mt-1 text-[11px] leading-relaxed ${active ? "text-black/70" : "text-zinc-500"}`}>{step.desc}</p>
+                        </button>
+                      );
+                    })}
+                  </aside>
 
-                  {error && (
-                    <div className="p-3 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />
-                      <span>{error}</span>
-                    </div>
-                  )}
+                  <section className="rounded-2xl border border-zinc-850 bg-zinc-900 p-6 shadow-xl">
+                    {settingsSuccess && (
+                      <div className="mb-5 p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30 text-emerald-200 text-xs flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+                        <span>{t.settings_saved}</span>
+                      </div>
+                    )}
 
-                  {/* Names AR / EN */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.biz_name_ar}</label>
-                      <input
-                        type="text"
-                        required
-                        value={nameAr}
-                        onChange={(e) => setNameAr(e.target.value)}
-                        dir="rtl"
-                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.biz_name_en}</label>
-                      <input
-                        type="text"
-                        required
-                        value={nameEn}
-                        onChange={(e) => setNameEn(e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none transition-all"
-                      />
-                    </div>
-                  </div>
+                    {error && (
+                      <div className="mb-5 p-3 rounded-xl bg-red-900/20 border border-red-500/30 text-red-200 text-xs flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />
+                        <span>{error}</span>
+                      </div>
+                    )}
 
-                  {/* URL Slug */}
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.slug_label}</label>
-                    <input
-                      type="text"
-                      required
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs font-mono text-white focus:outline-none transition-all"
-                    />
-                    <p className="text-[10px] text-zinc-500 mt-1">{t.slug_hint} {clientPortalUrl}</p>
-                  </div>
-
-                  {/* Logo URL */}
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.logo_label} (URL)</label>
-                    <input
-                      type="text"
-                      value={logoUrl}
-                      onChange={(e) => setLogoUrl(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none transition-all font-mono"
-                    />
-                  </div>
-
-                  {/* Theme colors */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.primary_color_label}</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={primaryColor}
-                          onChange={(e) => setPrimaryColor(e.target.value)}
-                          className="w-8 h-8 rounded border-0 cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={primaryColor}
-                          onChange={(e) => setPrimaryColor(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg text-xs p-1 font-mono text-center"
-                        />
+                    <div className="mb-6 border-b border-zinc-850 pb-5">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
+                          {currentSettingsStep.icon}
+                        </span>
+                        <div>
+                          <h3 className="text-lg font-black text-white">{currentSettingsStep.title}</h3>
+                          <p className="text-xs text-zinc-400 mt-1">{currentSettingsStep.desc}</p>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.secondary_color_label}</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={secondaryColor}
-                          onChange={(e) => setSecondaryColor(e.target.value)}
-                          className="w-8 h-8 rounded border-0 cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={secondaryColor}
-                          onChange={(e) => setSecondaryColor(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg text-xs p-1 font-mono text-center"
-                        />
+
+                    {settingsStep === 0 && (
+                      <div className="space-y-5">
+                        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-4">
+                          <p className="text-xs font-black text-white">{lang === "en" ? "Purpose" : "الهدف"}</p>
+                          <p className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+                            {lang === "en"
+                              ? "This tells guests they are in the right restaurant page before they spin or collect stamps."
+                              : "هذه الخطوة تطمئن العميل أنه في صفحة المطعم الصحيحة قبل السحب وجمع الأختام."}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.biz_name_ar}</label>
+                            <input type="text" required value={nameAr} onChange={(e) => setNameAr(e.target.value)} dir="rtl" className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.biz_name_en}</label>
+                            <input type="text" required value={nameEn} onChange={(e) => setNameEn(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none transition-all" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.slug_label}</label>
+                          <input type="text" required value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm font-mono text-white focus:outline-none transition-all" />
+                          <p className="text-[10px] text-zinc-500 mt-2">{clientPortalUrl}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {settingsStep === 1 && (
+                      <div className="space-y-5">
+                        <div>
+                          <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.logo_label} (URL)</label>
+                          <input type="text" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none transition-all font-mono" />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-2">{t.primary_color_label}</label>
+                            <div className="flex gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                              <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 cursor-pointer rounded border-0 bg-transparent" />
+                              <input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-full bg-transparent text-sm font-mono text-white focus:outline-none" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-2">{t.secondary_color_label}</label>
+                            <div className="flex gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                              <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 cursor-pointer rounded border-0 bg-transparent" />
+                              <input type="text" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="w-full bg-transparent text-sm font-mono text-white focus:outline-none" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {settingsStep === 2 && (
+                      <div className="space-y-6">
+                        <div>
+                          <div className="flex justify-between text-xs font-semibold mb-2">
+                            <span className="text-zinc-400">{t.odds_label}</span>
+                            <span className="text-amber-500 font-bold">{winProb}%</span>
+                          </div>
+                          <input type="range" min="1" max="100" value={winProb} onChange={(e) => setWinProb(parseInt(e.target.value))} className="w-full accent-amber-500 h-2 bg-zinc-950 rounded-lg" />
+                          <p className="mt-2 text-[11px] text-zinc-500">
+                            {lang === "en" ? `${winProb} out of every 100 scans can win instantly.` : `تقريباً ${winProb} من كل 100 عملية مسح قد تفوز فوراً.`}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.stamps_req_label}</label>
+                          <input type="number" min="2" max="20" value={stampsRequired} onChange={(e) => setStampsRequired(parseInt(e.target.value))} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none" />
+                          <p className="mt-2 text-[11px] text-zinc-500">
+                            {lang === "en" ? `Every scan adds 1 stamp. At ${stampsRequired} stamps, the guest earns a loyalty reward.` : `كل مسح يضيف ختماً واحداً. عند ${stampsRequired} أختام يحصل العميل على مكافأة ولاء.`}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.reward_ar_label}</label>
+                            <input type="text" required value={rewardAr} onChange={(e) => setRewardAr(e.target.value)} dir="rtl" className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.reward_en_label}</label>
+                            <input type="text" required value={rewardEn} onChange={(e) => setRewardEn(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {settingsStep === 3 && (
+                      <div className="space-y-5">
+                        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-4">
+                          <p className="text-xs font-black text-white">{lang === "en" ? "How claiming works" : "طريقة تسليم الجائزة"}</p>
+                          <p className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+                            {lang === "en"
+                              ? "When a guest wins, they show a 6-character code. Cashiers enter the code and PIN to mark the reward as claimed."
+                              : "عندما يفوز العميل، يعرض كود مكون من 6 رموز. يدخل الكاشير الكود ورمز المرور لتأكيد تسليم الجائزة."}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.cashier_pin_label}</label>
+                          <input type="password" minLength={4} value={cashierPin} onChange={(e) => setCashierPin(e.target.value)} placeholder={lang === "en" ? "Leave blank to keep current PIN" : "اتركه فارغاً للإبقاء على الرمز الحالي"} className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 px-3 text-sm text-white focus:outline-none" />
+                        </div>
+                      </div>
+                    )}
+
+                    {settingsStep === 4 && (
+                      <div className="space-y-4">
+                        {[
+                          lang === "en" ? "Save this setup" : "احفظ الإعدادات",
+                          lang === "en" ? "Open the QR Stand tab and print the code" : "افتح تبويب QR واطبع الرمز",
+                          lang === "en" ? "Place it at checkout, receipts, or tables" : "ضعه عند الكاشير أو على الفواتير أو الطاولات",
+                          lang === "en" ? "Tell cashiers: after payment, ask guests to scan" : "أخبر الكاشير: بعد الدفع اطلب من العميل المسح",
+                          lang === "en" ? "Use Pending Claims to verify winners" : "استخدم صفحة الجوائز للتحقق من الفائزين"
+                        ].map((item, index) => (
+                          <div key={item} className="flex items-start gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-black text-black">{index + 1}</span>
+                            <p className="text-sm font-bold text-white">{item}</p>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => setActiveTab("qr")} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 py-3 text-xs font-black text-amber-400 hover:bg-amber-500 hover:text-black transition-all">
+                          <ExternalLink className="h-4 w-4" />
+                          {lang === "en" ? "Go to QR Stand" : "اذهب إلى رمز QR"}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="mt-8 flex flex-col gap-3 border-t border-zinc-850 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                      <button type="button" disabled={settingsStep === 0} onClick={() => setSettingsStep(Math.max(0, settingsStep - 1))} className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 px-4 py-3 text-xs font-bold text-zinc-300 transition-all hover:border-zinc-700 hover:text-white disabled:opacity-40">
+                        <ArrowLeft className="h-4 w-4" />
+                        {t.back}
+                      </button>
+                      {settingsStep < settingsSteps.length - 1 ? (
+                        <button type="button" onClick={() => setSettingsStep(Math.min(settingsSteps.length - 1, settingsStep + 1))} className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-xs font-black text-black transition-all hover:bg-amber-400">
+                          {t.next}
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button type="submit" className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-xs font-black text-black transition-all hover:bg-amber-400">
+                          <Save className="h-4 w-4" />
+                          {t.save_settings}
+                        </button>
+                      )}
+                    </div>
+                  </section>
+
+                  <aside className="space-y-4">
+                    <div className="rounded-2xl border border-zinc-850 bg-zinc-900 p-5">
+                      <p className="text-xs font-black text-white">{lang === "en" ? "Guest preview" : "معاينة العميل"}</p>
+                      <div className="mt-4 rounded-[28px] border border-zinc-800 bg-zinc-950 p-4">
+                        <div className="text-center">
+                          <img src={logoUrl || business.logo_url || "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150&h=150&fit=crop&q=80"} alt="" className="mx-auto h-14 w-14 rounded-full object-cover border-2" style={{ borderColor: primaryColor }} />
+                          <h4 className="mt-3 text-sm font-black text-white">{lang === "en" ? nameEn : nameAr}</h4>
+                          <p className="mt-1 text-[10px] text-zinc-500">{lang === "en" ? rewardEn : rewardAr}</p>
+                        </div>
+                        <div className="mt-5 rounded-2xl p-4 text-center" style={{ backgroundColor: primaryColor }}>
+                          <p className="text-[10px] font-black uppercase text-white/80">{lang === "en" ? "Scan to win" : "امسح واربح"}</p>
+                          <p className="mt-1 text-lg font-black text-white">{winProb}%</p>
+                        </div>
+                        <div className="mt-4 h-2 rounded-full bg-zinc-800">
+                          <div className="h-2 rounded-full" style={{ width: `${Math.min(100, (2 / Math.max(1, stampsRequired)) * 100)}%`, backgroundColor: secondaryColor }}></div>
+                        </div>
+                        <p className="mt-2 text-center text-[10px] text-zinc-500">2 / {stampsRequired} {lang === "en" ? "stamps" : "أختام"}</p>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Win odds slider */}
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold mb-1">
-                      <span className="text-zinc-400">{t.odds_label}</span>
-                      <span className="text-amber-500 font-bold">{winProb}%</span>
+                    <div className="rounded-2xl border border-zinc-850 bg-zinc-900 p-5">
+                      <p className="text-xs font-black text-white">{lang === "en" ? "Your customer link" : "رابط العملاء"}</p>
+                      <p className="mt-2 break-all rounded-xl bg-zinc-950 p-3 font-mono text-[10px] text-zinc-400">{clientPortalUrl}</p>
+                      <button type="button" onClick={handleCopyLink} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-800 py-2.5 text-xs font-bold text-zinc-300 hover:text-white">
+                        <Copy className="h-4 w-4" />
+                        {copied ? (lang === "en" ? "Copied" : "تم النسخ") : (lang === "en" ? "Copy link" : "نسخ الرابط")}
+                      </button>
                     </div>
-                    <input
-                      type="range"
-                      min="1"
-                      max="100"
-                      value={winProb}
-                      onChange={(e) => setWinProb(parseInt(e.target.value))}
-                      className="w-full accent-amber-500 h-1.5 bg-zinc-950 rounded-lg"
-                    />
-                  </div>
-
-                  {/* Stamps required */}
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.stamps_req_label}</label>
-                    <input
-                      type="number"
-                      min="2"
-                      max="20"
-                      value={stampsRequired}
-                      onChange={(e) => setStampsRequired(parseInt(e.target.value))}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-
-                  {/* Rewards AR / EN */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.reward_ar_label}</label>
-                      <input
-                        type="text"
-                        required
-                        value={rewardAr}
-                        onChange={(e) => setRewardAr(e.target.value)}
-                        dir="rtl"
-                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t.reward_en_label}</label>
-                      <input
-                        type="text"
-                        required
-                        value={rewardEn}
-                        onChange={(e) => setRewardEn(e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                      {t.cashier_pin_label}
-                    </label>
-                    <input
-                      type="password"
-                      minLength={4}
-                      value={cashierPin}
-                      onChange={(e) => setCashierPin(e.target.value)}
-                      placeholder={lang === "en" ? "Leave blank to keep current PIN" : "اتركه فارغاً للإبقاء على الرمز الحالي"}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Save className="h-4 w-4" /> {t.save_settings}
-                  </button>
-
+                  </aside>
                 </form>
               </div>
             )}
