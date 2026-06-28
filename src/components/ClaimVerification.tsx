@@ -15,7 +15,7 @@ export default function ClaimVerification({ lang, codeParam, onNavigate, theme =
   const t = translations[lang];
 
   const [code, setCode] = useState(codeParam || "");
-  const [pin, setPin] = useState("1234");
+  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -238,7 +238,7 @@ export default function ClaimVerification({ lang, codeParam, onNavigate, theme =
                       type="password"
                       value={pin}
                       onChange={(e) => setPin(e.target.value)}
-                      placeholder="Default PIN: 1234"
+                      placeholder={lang === "en" ? "Cashier PIN" : "رمز الكاشير"}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
@@ -266,7 +266,7 @@ export default function ClaimVerification({ lang, codeParam, onNavigate, theme =
       </div>
 
       <footer className="text-center text-zinc-700 text-[10px] mt-12 font-mono select-none">
-        loya verification node • standard PIN is 1234
+        loya verification node
       </footer>
     </div>
   );

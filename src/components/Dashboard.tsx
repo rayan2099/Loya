@@ -31,7 +31,7 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
 
   // Claim actions inside dashboard
   const [claimCodeInput, setClaimCodeInput] = useState("");
-  const [claimPinInput, setClaimPinInput] = useState("1234");
+  const [claimPinInput, setClaimPinInput] = useState("");
   const [claimSuccessMsg, setClaimSuccessMsg] = useState("");
   const [claimErrorMsg, setClaimErrorMsg] = useState("");
 
@@ -46,6 +46,7 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
   const [stampsRequired, setStampsRequired] = useState(business?.stamps_required || 5);
   const [rewardAr, setRewardAr] = useState(business?.reward_ar || "");
   const [rewardEn, setRewardEn] = useState(business?.reward_en || "");
+  const [cashierPin, setCashierPin] = useState("");
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
   // Link copy notifier
@@ -124,7 +125,10 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
     try {
       const res = await fetch("/api/rewards/claim", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ code, pin: claimPinInput })
       });
       const data = await res.json();
@@ -164,7 +168,8 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
           win_probability: winProb,
           stamps_required: stampsRequired,
           reward_ar: rewardAr,
-          reward_en: rewardEn
+          reward_en: rewardEn,
+          ...(cashierPin.trim() ? { cashier_pin: cashierPin.trim() } : {})
         })
       });
 
@@ -174,6 +179,7 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
       }
 
       onUpdateBusiness(data);
+      setCashierPin("");
       setSettingsSuccess(true);
       setTimeout(() => setSettingsSuccess(false), 3000);
     } catch (err: any) {
@@ -675,7 +681,7 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
                       <label className="block text-xs text-zinc-400 mb-1">{t.cashier_pin_label}</label>
                       <input
                         type="password"
-                        placeholder="1234"
+                        placeholder={lang === "en" ? "Owner session can claim directly" : "جلسة المالك تكفي للتسليم"}
                         value={claimPinInput}
                         onChange={(e) => setClaimPinInput(e.target.value)}
                         className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-4 text-xs font-mono text-white focus:outline-none"
@@ -926,6 +932,20 @@ export default function Dashboard({ lang, token, business, onNavigate, onLogout,
                         className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                      {t.cashier_pin_label}
+                    </label>
+                    <input
+                      type="password"
+                      minLength={4}
+                      value={cashierPin}
+                      onChange={(e) => setCashierPin(e.target.value)}
+                      placeholder={lang === "en" ? "Leave blank to keep current PIN" : "اتركه فارغاً للإبقاء على الرمز الحالي"}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-500 rounded-xl py-2 px-3 text-xs text-white focus:outline-none"
+                    />
                   </div>
 
                   <button

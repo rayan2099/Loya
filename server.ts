@@ -1,13 +1,39 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
+import "dotenv/config";
 import { createServer as createViteServer } from "vite";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Business, Customer, Scan, Reward, Owner, DashboardStats } from "./src/types";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
+const SESSION_SECRET = process.env.SESSION_SECRET || "local-dev-change-me";
+const DEFAULT_CASHIER_PIN = process.env.DEFAULT_CASHIER_PIN || "1234";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const USE_SUPABASE = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_SERVICE_ROLE_KEY);
+
+if (IS_PRODUCTION && SESSION_SECRET === "local-dev-change-me") {
+  throw new Error("SESSION_SECRET must be set in production.");
+}
 
 app.use(express.json());
+
+const supabaseAdmin: SupabaseClient | null = USE_SUPABASE
+  ? createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  : null;
+
+const supabaseAnon: SupabaseClient | null = USE_SUPABASE
+  ? createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  : null;
 
 // Path to data file
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -22,14 +48,138 @@ interface DBState {
   rewards: Reward[];
 }
 
+type TokenPayload = {
+  ownerId: string;
+  email: string;
+  exp: number;
+};
+
+function base64Url(input: string | Buffer): string {
+  return Buffer.from(input).toString("base64url");
+}
+
+function signToken(payload: TokenPayload): string {
+  const encodedPayload = base64Url(JSON.stringify(payload));
+  const signature = crypto
+    .createHmac("sha256", SESSION_SECRET)
+    .update(encodedPayload)
+    .digest("base64url");
+
+  return `${encodedPayload}.${signature}`;
+}
+
+function verifyToken(token: string): TokenPayload | null {
+  const [encodedPayload, signature] = token.split(".");
+  if (!encodedPayload || !signature) return null;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", SESSION_SECRET)
+    .update(encodedPayload)
+    .digest("base64url");
+
+  const received = Buffer.from(signature);
+  const expected = Buffer.from(expectedSignature);
+  if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")) as TokenPayload;
+    if (!payload.ownerId || payload.exp < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function hashSecret(secret: string, salt = crypto.randomBytes(16).toString("hex")): string {
+  const hash = crypto.scryptSync(secret, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifySecret(secret: string, storedHash?: string): boolean {
+  if (!storedHash) return false;
+  const [salt, hash] = storedHash.split(":");
+  if (!salt || !hash) return false;
+  const candidate = crypto.scryptSync(secret, salt, 64).toString("hex");
+  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(candidate, "hex"));
+}
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/[^\d+]/g, "").trim();
+}
+
+function sanitizeSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 64);
+}
+
 // Generate random claim codes
 function generateClaimCode(prefix: 'W' | 'S'): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // clear of O, I, 1, 0 typos
   let code = prefix;
   for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(crypto.randomInt(0, chars.length));
   }
   return code;
+}
+
+function generateUniqueClaimCode(dbState: DBState, prefix: "W" | "S"): string {
+  let code = generateClaimCode(prefix);
+  while (dbState.rewards.some(r => r.claim_code === code)) {
+    code = generateClaimCode(prefix);
+  }
+  return code;
+}
+
+async function generateUniqueSupabaseClaimCode(prefix: "W" | "S"): Promise<string> {
+  if (!supabaseAdmin) throw new Error("Supabase is not configured.");
+
+  let code = generateClaimCode(prefix);
+  for (let i = 0; i < 12; i++) {
+    const { data, error } = await supabaseAdmin
+      .from("rewards")
+      .select("id")
+      .eq("claim_code", code)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return code;
+    code = generateClaimCode(prefix);
+  }
+
+  throw new Error("Could not generate a unique claim code.");
+}
+
+function requireSupabase() {
+  if (!supabaseAdmin || !supabaseAnon) {
+    throw new Error("Supabase is not configured.");
+  }
+  return { supabaseAdmin, supabaseAnon };
+}
+
+function sendServerError(res: express.Response, error: unknown, fallback = "Server error") {
+  console.error(error);
+  const message = error instanceof Error ? error.message : fallback;
+  res.status(500).json({ error: message || fallback });
+}
+
+const rateLimitBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function rateLimit(key: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now();
+  const current = rateLimitBuckets.get(key);
+  if (!current || current.resetAt <= now) {
+    rateLimitBuckets.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+
+  current.count += 1;
+  return current.count <= maxRequests;
 }
 
 // Helper to load/save database state
@@ -46,7 +196,26 @@ function loadDB(): DBState {
 
   try {
     const data = fs.readFileSync(DB_FILE, "utf8");
-    return JSON.parse(data);
+    const parsed = JSON.parse(data) as DBState;
+    let needsSave = false;
+
+    parsed.owners = parsed.owners.map(owner => {
+      if (owner.password_hash) return owner;
+      needsSave = true;
+      return {
+        ...owner,
+        password_hash: owner.email === "demo@loya.sa" ? hashSecret("password123") : hashSecret(crypto.randomBytes(24).toString("hex"))
+      };
+    });
+
+    parsed.businesses = parsed.businesses.map(business => {
+      if (business.cashier_pin_hash) return business;
+      needsSave = true;
+      return { ...business, cashier_pin_hash: hashSecret(DEFAULT_CASHIER_PIN) };
+    });
+
+    if (needsSave) saveDB(parsed);
+    return parsed;
   } catch (error) {
     console.error("Error reading db.json, returning seed data", error);
     return getSeedData();
@@ -80,7 +249,9 @@ function getSeedData(): DBState {
     {
       id: "owner-demo",
       email: "demo@loya.sa",
-      business_id: "business-demo"
+      business_id: "business-demo",
+      password_hash: hashSecret("password123"),
+      phone: "0500000000"
     }
   ];
 
@@ -99,6 +270,7 @@ function getSeedData(): DBState {
       stamps_required: 5,
       reward_ar: "كوب قهوة مجاني فاخر ☕",
       reward_en: "Free Premium Latte ☕",
+      cashier_pin_hash: hashSecret(DEFAULT_CASHIER_PIN),
       is_active: true,
       created_at: relativeDate(15)
     }
@@ -226,35 +398,176 @@ let db = loadDB();
 
 // ---------------- API ENDPOINTS ----------------
 
-// Helper to verify business ownership (Mock auth header check)
-function getLoggedInOwner(req: express.Request): Owner | null {
+// Helper to verify business ownership
+async function getLoggedInOwner(req: express.Request): Promise<Owner | null> {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
   const token = authHeader.substring(7);
-  // Simple token parser: we use the email or owner-id as token
+  const tokenPayload = verifyToken(token);
+  if (USE_SUPABASE && tokenPayload) {
+    const { supabaseAdmin } = requireSupabase();
+    const { data: business, error } = await supabaseAdmin
+      .from("businesses")
+      .select("id, owner_id")
+      .eq("owner_id", tokenPayload.ownerId)
+      .maybeSingle();
+
+    if (error || !business) return null;
+    return {
+      id: tokenPayload.ownerId,
+      email: tokenPayload.email,
+      business_id: business.id
+    };
+  }
+
   const dbState = loadDB();
-  const owner = dbState.owners.find(o => o.id === token || o.email === token);
+  const owner = tokenPayload
+    ? dbState.owners.find(o => o.id === tokenPayload.ownerId)
+    : dbState.owners.find(o => o.id === token || o.email === token);
   return owner || null;
 }
 
+function createOwnerSession(owner: Owner): string {
+  return signToken({
+    ownerId: owner.id,
+    email: owner.email,
+    exp: Date.now() + 1000 * 60 * 60 * 24 * 14
+  });
+}
+
+function publicOwner(owner: Owner): Omit<Owner, "password_hash"> {
+  const { password_hash, ...safeOwner } = owner;
+  return safeOwner;
+}
+
+function publicBusiness(business: Business): Omit<Business, "cashier_pin_hash"> {
+  const { cashier_pin_hash, ...safeBusiness } = business;
+  return safeBusiness;
+}
+
 // 1. Authenticated User Endpoint
-app.get("/api/auth/me", (req, res) => {
-  const owner = getLoggedInOwner(req);
+app.get("/api/auth/me", async (req, res) => {
+  const owner = await getLoggedInOwner(req);
   if (!owner) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data: business, error } = await supabaseAdmin
+        .from("businesses")
+        .select("*")
+        .eq("owner_id", owner.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return res.json({
+        owner: publicOwner(owner),
+        business: business ? publicBusiness(business as Business) : null
+      });
+    } catch (error) {
+      return sendServerError(res, error);
+    }
+  }
+
   const dbState = loadDB();
   const business = dbState.businesses.find(b => b.owner_id === owner.id);
-  res.json({ owner, business });
+  res.json({
+    owner: publicOwner(owner),
+    business: business ? publicBusiness(business) : null
+  });
 });
 
 // 2. Register Owner + Business
-app.post("/api/auth/register", (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
   const { email, password, name_ar, name_en, business_type, phone } = req.body;
   if (!email || !password || !name_en || !name_ar) {
     return res.status(400).json({ error: "Missing required register fields" });
+  }
+  if (!rateLimit(`register:${req.ip}`, 10, 60 * 60 * 1000)) {
+    return res.status(429).json({ error: "Too many registration attempts. Please try again later." });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: "Password must be at least 8 characters." });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const normalizedEmail = String(email).toLowerCase().trim();
+
+      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
+        email: normalizedEmail,
+        password,
+        email_confirm: true,
+        user_metadata: { phone: phone ? normalizePhone(phone) : null }
+      });
+
+      if (userError) throw userError;
+      if (!userData.user) throw new Error("Could not create owner account.");
+
+      let slug = sanitizeSlug(name_en);
+      if (!slug) slug = `business-${crypto.randomBytes(3).toString("hex")}`;
+
+      let suffix = 1;
+      const baseSlug = slug;
+      while (true) {
+        const { data: existing, error: slugError } = await supabaseAdmin
+          .from("businesses")
+          .select("id")
+          .eq("slug", slug)
+          .maybeSingle();
+
+        if (slugError) throw slugError;
+        if (!existing) break;
+        slug = `${baseSlug}-${suffix}`;
+        suffix++;
+      }
+
+      const { data: business, error: businessError } = await supabaseAdmin
+        .from("businesses")
+        .insert({
+          owner_id: userData.user.id,
+          name_ar,
+          name_en,
+          slug,
+          logo_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150&h=150&fit=crop&q=80",
+          primary_color: "#1a1a1a",
+          secondary_color: "#D4AF37",
+          business_type: business_type || "coffee",
+          win_probability: 20,
+          stamps_required: 5,
+          reward_ar: "مكافأة مميزة مجانية 🎁",
+          reward_en: "Free Special Reward 🎁",
+          cashier_pin_hash: hashSecret(DEFAULT_CASHIER_PIN),
+          is_active: true
+        })
+        .select("*")
+        .single();
+
+      if (businessError) {
+        await supabaseAdmin.auth.admin.deleteUser(userData.user.id);
+        throw businessError;
+      }
+
+      const owner: Owner = {
+        id: userData.user.id,
+        email: normalizedEmail,
+        business_id: business.id,
+        phone: phone ? normalizePhone(phone) : undefined
+      };
+
+      return res.json({
+        token: createOwnerSession(owner),
+        owner: publicOwner(owner),
+        business: publicBusiness(business as Business)
+      });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message || "Could not create account." });
+    }
   }
 
   const dbState = loadDB();
@@ -262,16 +575,13 @@ app.post("/api/auth/register", (req, res) => {
     return res.status(400).json({ error: "Email is already registered" });
   }
 
-  const ownerId = "owner-" + Math.random().toString(36).substr(2, 9);
-  const businessId = "business-" + Math.random().toString(36).substr(2, 9);
+  const ownerId = crypto.randomUUID();
+  const businessId = crypto.randomUUID();
   
   // Format clean URL slug from English name
-  let slug = name_en
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  let slug = sanitizeSlug(name_en);
   
-  if (!slug) slug = "business-" + Math.random().toString(36).substr(2, 5);
+  if (!slug) slug = `business-${crypto.randomBytes(3).toString("hex")}`;
 
   // Check unique slug constraint
   let suffix = 1;
@@ -281,7 +591,13 @@ app.post("/api/auth/register", (req, res) => {
     suffix++;
   }
 
-  const newOwner: Owner = { id: ownerId, email, business_id: businessId };
+  const newOwner: Owner = {
+    id: ownerId,
+    email: email.toLowerCase().trim(),
+    business_id: businessId,
+    password_hash: hashSecret(password),
+    phone: phone ? normalizePhone(phone) : undefined
+  };
   const newBusiness: Business = {
     id: businessId,
     owner_id: ownerId,
@@ -296,6 +612,7 @@ app.post("/api/auth/register", (req, res) => {
     stamps_required: 5,  // default 5
     reward_ar: "مكافأة مميزة مجانية 🎁",
     reward_en: "Free Special Reward 🎁",
+    cashier_pin_hash: hashSecret(DEFAULT_CASHIER_PIN),
     is_active: true,
     created_at: new Date().toISOString()
   };
@@ -305,51 +622,154 @@ app.post("/api/auth/register", (req, res) => {
   saveDB(dbState);
 
   res.json({
-    token: ownerId,
-    owner: newOwner,
-    business: newBusiness
+    token: createOwnerSession(newOwner),
+    owner: publicOwner(newOwner),
+    business: publicBusiness(newBusiness)
   });
 });
 
 // 3. Login Owner
-app.post("/api/auth/login", (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required" });
+  }
+  if (!rateLimit(`login:${req.ip}:${String(email).toLowerCase()}`, 12, 15 * 60 * 1000)) {
+    return res.status(429).json({ error: "Too many login attempts. Please try again later." });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAnon, supabaseAdmin } = requireSupabase();
+      const normalizedEmail = String(email).toLowerCase().trim();
+      const { data: authData, error: authError } = await supabaseAnon.auth.signInWithPassword({
+        email: normalizedEmail,
+        password
+      });
+
+      if (authError || !authData.user) {
+        return res.status(400).json({ error: "Invalid email or password." });
+      }
+
+      const { data: business, error: businessError } = await supabaseAdmin
+        .from("businesses")
+        .select("*")
+        .eq("owner_id", authData.user.id)
+        .maybeSingle();
+
+      if (businessError) throw businessError;
+      if (!business) return res.status(404).json({ error: "Business record not found." });
+
+      const owner: Owner = {
+        id: authData.user.id,
+        email: authData.user.email || normalizedEmail,
+        business_id: business.id,
+        phone: authData.user.user_metadata?.phone
+      };
+
+      return res.json({
+        token: createOwnerSession(owner),
+        owner: publicOwner(owner),
+        business: publicBusiness(business as Business)
+      });
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
   const owner = dbState.owners.find(o => o.email.toLowerCase() === email.toLowerCase());
   
-  // For demo simplicity, accept password
-  if (!owner || password !== "password123" && password.length < 4) {
-    return res.status(400).json({ error: "Invalid credentials. Use password123 for demo." });
+  if (!owner || !verifySecret(password, owner.password_hash)) {
+    return res.status(400).json({ error: "Invalid email or password." });
   }
 
   const business = dbState.businesses.find(b => b.owner_id === owner.id);
   res.json({
-    token: owner.id,
-    owner,
-    business
+    token: createOwnerSession(owner),
+    owner: publicOwner(owner),
+    business: business ? publicBusiness(business) : null
   });
 });
 
 // 4. Get Business Details by Slug (Public)
-app.get("/api/business/:slug", (req, res) => {
+app.get("/api/business/:slug", async (req, res) => {
   const { slug } = req.params;
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data: business, error } = await supabaseAdmin
+        .from("businesses")
+        .select("*")
+        .eq("slug", slug.toLowerCase())
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!business) return res.status(404).json({ error: "Business not found" });
+      return res.json(publicBusiness(business as Business));
+    } catch (error) {
+      return sendServerError(res, error);
+    }
+  }
+
   const dbState = loadDB();
   const business = dbState.businesses.find(b => b.slug.toLowerCase() === slug.toLowerCase());
   if (!business) {
     return res.status(404).json({ error: "Business not found" });
   }
-  res.json(business);
+  res.json(publicBusiness(business));
 });
 
 // 5. Update Business Settings (Private)
-app.put("/api/business", (req, res) => {
-  const owner = getLoggedInOwner(req);
+app.put("/api/business", async (req, res) => {
+  const owner = await getLoggedInOwner(req);
   if (!owner) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { cashier_pin, cashier_pin_hash, owner_id, id, created_at, ...updatedData } = req.body;
+
+      if (updatedData.slug) {
+        updatedData.slug = sanitizeSlug(updatedData.slug);
+        if (!updatedData.slug) {
+          return res.status(400).json({ error: "Slug must contain letters or numbers." });
+        }
+
+        const { data: slugOwner, error: slugError } = await supabaseAdmin
+          .from("businesses")
+          .select("id")
+          .eq("slug", updatedData.slug)
+          .neq("id", owner.business_id)
+          .maybeSingle();
+
+        if (slugError) throw slugError;
+        if (slugOwner) return res.status(400).json({ error: "This URL slug is already taken." });
+      }
+
+      const updatePayload = {
+        ...updatedData,
+        ...(cashier_pin ? { cashier_pin_hash: hashSecret(String(cashier_pin)) } : {}),
+        win_probability: Math.min(100, Math.max(1, Number(updatedData.win_probability ?? 20))),
+        stamps_required: Math.min(50, Math.max(1, Number(updatedData.stamps_required ?? 5)))
+      };
+
+      const { data: business, error } = await supabaseAdmin
+        .from("businesses")
+        .update(updatePayload)
+        .eq("id", owner.business_id)
+        .eq("owner_id", owner.id)
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      return res.json(publicBusiness(business as Business));
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
@@ -359,10 +779,14 @@ app.put("/api/business", (req, res) => {
   }
 
   const originalSlug = dbState.businesses[bIndex].slug;
-  const updatedData = req.body;
+  const { cashier_pin, cashier_pin_hash, owner_id, id, created_at, ...updatedData } = req.body;
 
   // Validate unique slug
   if (updatedData.slug && updatedData.slug !== originalSlug) {
+    updatedData.slug = sanitizeSlug(updatedData.slug);
+    if (!updatedData.slug) {
+      return res.status(400).json({ error: "Slug must contain letters or numbers." });
+    }
     const slugExists = dbState.businesses.some(
       b => b.id !== owner.business_id && b.slug.toLowerCase() === updatedData.slug.toLowerCase()
     );
@@ -374,19 +798,163 @@ app.put("/api/business", (req, res) => {
   dbState.businesses[bIndex] = {
     ...dbState.businesses[bIndex],
     ...updatedData,
+    ...(cashier_pin ? { cashier_pin_hash: hashSecret(String(cashier_pin)) } : {}),
+    win_probability: Math.min(100, Math.max(1, Number(updatedData.win_probability ?? dbState.businesses[bIndex].win_probability))),
+    stamps_required: Math.min(50, Math.max(1, Number(updatedData.stamps_required ?? dbState.businesses[bIndex].stamps_required))),
     id: owner.business_id, // prevent id modifications
     owner_id: owner.id
   };
 
   saveDB(dbState);
-  res.json(dbState.businesses[bIndex]);
+  res.json(publicBusiness(dbState.businesses[bIndex]));
 });
 
 // 6. Execute Customer Scan (Public) - Lottery Win and stamp progression calculation
-app.post("/api/scan", (req, res) => {
+app.post("/api/scan", async (req, res) => {
   const { business_id, phone, name } = req.body;
   if (!business_id || !phone || !name) {
     return res.status(400).json({ error: "Business ID, phone number and customer name are required" });
+  }
+  const cleanPhone = normalizePhone(phone);
+  if (!rateLimit(`scan:${business_id}:${cleanPhone || req.ip}`, 8, 10 * 60 * 1000)) {
+    return res.status(429).json({ error: "Too many scans. Please wait before trying again." });
+  }
+  if (cleanPhone.length < 8 || cleanPhone.length > 16) {
+    return res.status(400).json({ error: "Please enter a valid phone number." });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data: business, error: businessError } = await supabaseAdmin
+        .from("businesses")
+        .select("*")
+        .eq("id", business_id)
+        .maybeSingle();
+
+      if (businessError) throw businessError;
+      if (!business) return res.status(404).json({ error: "Business not found" });
+      if (!business.is_active) {
+        return res.status(403).json({ error: "This loyalty campaign is currently inactive." });
+      }
+
+      const scanDate = new Date().toISOString();
+      const { data: existingCustomer, error: customerLookupError } = await supabaseAdmin
+        .from("customers")
+        .select("*")
+        .eq("business_id", business_id)
+        .eq("phone", cleanPhone)
+        .maybeSingle();
+
+      if (customerLookupError) throw customerLookupError;
+
+      let customer = existingCustomer as Customer | null;
+      if (!customer) {
+        const { data: insertedCustomer, error: insertCustomerError } = await supabaseAdmin
+          .from("customers")
+          .insert({
+            business_id,
+            phone: cleanPhone,
+            name: name.trim(),
+            stamps: 0,
+            total_scans: 0
+          })
+          .select("*")
+          .single();
+
+        if (insertCustomerError) throw insertCustomerError;
+        customer = insertedCustomer as Customer;
+      }
+
+      const oldStamps = customer.stamps;
+      const randVal = crypto.randomInt(1, 101);
+      const wonLottery = randVal <= business.win_probability;
+      const newScanPayload = {
+        business_id,
+        customer_id: customer.id,
+        won: wonLottery,
+        reward_claimed: false,
+        created_at: scanDate
+      };
+
+      const { data: scan, error: scanError } = await supabaseAdmin
+        .from("scans")
+        .insert(newScanPayload)
+        .select("*")
+        .single();
+
+      if (scanError) throw scanError;
+
+      const rewardsEarned: Reward[] = [];
+      if (wonLottery) {
+        const { data: reward, error: rewardError } = await supabaseAdmin
+          .from("rewards")
+          .insert({
+            business_id,
+            customer_id: customer.id,
+            scan_id: scan.id,
+            type: "lottery_win",
+            claimed: false,
+            claim_code: await generateUniqueSupabaseClaimCode("W"),
+            created_at: scanDate
+          })
+          .select("*")
+          .single();
+
+        if (rewardError) throw rewardError;
+        rewardsEarned.push(reward as Reward);
+      }
+
+      let newStamps = oldStamps + 1;
+      let wonStampReward = false;
+      if (newStamps >= business.stamps_required) {
+        wonStampReward = true;
+        newStamps = 0;
+        const { data: reward, error: rewardError } = await supabaseAdmin
+          .from("rewards")
+          .insert({
+            business_id,
+            customer_id: customer.id,
+            scan_id: scan.id,
+            type: "stamp_reward",
+            claimed: false,
+            claim_code: await generateUniqueSupabaseClaimCode("S"),
+            created_at: scanDate
+          })
+          .select("*")
+          .single();
+
+        if (rewardError) throw rewardError;
+        rewardsEarned.push(reward as Reward);
+      }
+
+      const { data: updatedCustomer, error: updateCustomerError } = await supabaseAdmin
+        .from("customers")
+        .update({
+          name: name.trim(),
+          stamps: newStamps,
+          total_scans: customer.total_scans + 1
+        })
+        .eq("id", customer.id)
+        .select("*")
+        .single();
+
+      if (updateCustomerError) throw updateCustomerError;
+
+      return res.json({
+        scan,
+        customer: updatedCustomer,
+        rewards: rewardsEarned,
+        wonLottery,
+        wonStampReward,
+        stampsEarned: 1,
+        oldStamps,
+        currentStamps: updatedCustomer.stamps,
+        stampsRequired: business.stamps_required
+      });
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
@@ -394,10 +962,13 @@ app.post("/api/scan", (req, res) => {
   if (!business) {
     return res.status(404).json({ error: "Business not found" });
   }
+  if (!business.is_active) {
+    return res.status(403).json({ error: "This loyalty campaign is currently inactive." });
+  }
 
   // Get or Create Customer (unique by phone + business_id)
   let customer = dbState.customers.find(
-    c => c.business_id === business_id && c.phone.trim() === phone.trim()
+    c => c.business_id === business_id && normalizePhone(c.phone) === cleanPhone
   );
 
   const isFirstTime = !customer;
@@ -405,9 +976,9 @@ app.post("/api/scan", (req, res) => {
 
   if (!customer) {
     customer = {
-      id: "cust-" + Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       business_id,
-      phone: phone.trim(),
+      phone: cleanPhone,
       name: name.trim(),
       stamps: 0,
       total_scans: 0,
@@ -420,11 +991,11 @@ app.post("/api/scan", (req, res) => {
   customer.total_scans += 1;
 
   // Server-side win logic based on probability
-  const randVal = Math.floor(Math.random() * 100) + 1; // 1-100
+  const randVal = crypto.randomInt(1, 101); // 1-100
   const wonLottery = randVal <= business.win_probability;
 
   // Create scan record
-  const scanId = "scan-" + Math.random().toString(36).substr(2, 9);
+  const scanId = crypto.randomUUID();
   const newScan: Scan = {
     id: scanId,
     business_id,
@@ -440,13 +1011,13 @@ app.post("/api/scan", (req, res) => {
   // Generate Lottery Win Reward
   if (wonLottery) {
     const lReward: Reward = {
-      id: "reward-" + Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       business_id,
       customer_id: customer.id,
       scan_id: scanId,
       type: "lottery_win",
       claimed: false,
-      claim_code: generateClaimCode('W'),
+      claim_code: generateUniqueClaimCode(dbState, 'W'),
       created_at: scanDate
     };
     dbState.rewards.push(lReward);
@@ -463,13 +1034,13 @@ app.post("/api/scan", (req, res) => {
     newStamps = 0; // reset stamp count
 
     const sReward: Reward = {
-      id: "reward-" + Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       business_id,
       customer_id: customer.id,
       scan_id: scanId,
       type: "stamp_reward",
       claimed: false,
-      claim_code: generateClaimCode('S'),
+      claim_code: generateUniqueClaimCode(dbState, 'S'),
       created_at: scanDate
     };
     dbState.rewards.push(sReward);
@@ -500,10 +1071,60 @@ app.post("/api/scan", (req, res) => {
 });
 
 // 7. Get Dashboard Stats (Private)
-app.get("/api/dashboard/stats", (req, res) => {
-  const owner = getLoggedInOwner(req);
+app.get("/api/dashboard/stats", async (req, res) => {
+  const owner = await getLoggedInOwner(req);
   if (!owner) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const bid = owner.business_id;
+      const [{ data: bScans, error: scansError }, { data: bCustomers, error: customersError }, { data: bRewards, error: rewardsError }] = await Promise.all([
+        supabaseAdmin.from("scans").select("*").eq("business_id", bid),
+        supabaseAdmin.from("customers").select("*").eq("business_id", bid),
+        supabaseAdmin.from("rewards").select("*").eq("business_id", bid)
+      ]);
+
+      if (scansError) throw scansError;
+      if (customersError) throw customersError;
+      if (rewardsError) throw rewardsError;
+
+      const scans = (bScans || []) as Scan[];
+      const customers = (bCustomers || []) as Customer[];
+      const rewards = (bRewards || []) as Reward[];
+      const todayStr = new Date().toISOString().substring(0, 10);
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      const chartData = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().substring(0, 10);
+        chartData.push({
+          date: d.toLocaleDateString("en-US", { day: "numeric", month: "short" }),
+          scans: scans.filter(s => s.created_at.substring(0, 10) === dateStr).length,
+          wins: scans.filter(s => s.created_at.substring(0, 10) === dateStr && s.won).length
+        });
+      }
+
+      const stats: DashboardStats = {
+        totalScansAllTime: scans.length,
+        totalScansToday: scans.filter(s => s.created_at.substring(0, 10) === todayStr).length,
+        totalScansThisWeek: scans.filter(s => new Date(s.created_at) >= oneWeekAgo).length,
+        totalCustomers: customers.length,
+        totalWins: scans.filter(s => s.won).length,
+        claimedRewards: rewards.filter(r => r.claimed).length,
+        unclaimedRewards: rewards.filter(r => !r.claimed).length,
+        chartData
+      };
+
+      return res.json(stats);
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
@@ -565,13 +1186,35 @@ app.get("/api/dashboard/stats", (req, res) => {
 });
 
 // 8. Get Dashboard Customers list (Private)
-app.get("/api/dashboard/customers", (req, res) => {
-  const owner = getLoggedInOwner(req);
+app.get("/api/dashboard/customers", async (req, res) => {
+  const owner = await getLoggedInOwner(req);
   if (!owner) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const search = (req.query.search as string || "").toLowerCase();
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      let query = supabaseAdmin
+        .from("customers")
+        .select("*")
+        .eq("business_id", owner.business_id)
+        .order("created_at", { ascending: false });
+
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return res.json(data || []);
+    } catch (error) {
+      return sendServerError(res, error);
+    }
+  }
+
   const dbState = loadDB();
   let bCustomers = dbState.customers.filter(c => c.business_id === owner.business_id);
 
@@ -588,10 +1231,33 @@ app.get("/api/dashboard/customers", (req, res) => {
 });
 
 // 9. Get Dashboard Rewards list (Private)
-app.get("/api/dashboard/rewards", (req, res) => {
-  const owner = getLoggedInOwner(req);
+app.get("/api/dashboard/rewards", async (req, res) => {
+  const owner = await getLoggedInOwner(req);
   if (!owner) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data, error } = await supabaseAdmin
+        .from("rewards")
+        .select("*, customers(name, phone)")
+        .eq("business_id", owner.business_id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const detailedRewards = (data || []).map((reward: any) => ({
+        ...reward,
+        customer_name: reward.customers?.name || "Unknown Customer",
+        customer_phone: reward.customers?.phone || ""
+      }));
+
+      return res.json(detailedRewards);
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
@@ -614,8 +1280,48 @@ app.get("/api/dashboard/rewards", (req, res) => {
 });
 
 // 10. Verify Claim Code (Public or Cashier)
-app.get("/api/claim/:code", (req, res) => {
+app.get("/api/claim/:code", async (req, res) => {
   const { code } = req.params;
+  if (!rateLimit(`claim-check:${req.ip}:${code}`, 30, 15 * 60 * 1000)) {
+    return res.status(429).json({ error: "Too many verification attempts. Please try again later." });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data, error } = await supabaseAdmin
+        .from("rewards")
+        .select("*, customers(name), businesses(name_ar, name_en, reward_ar, reward_en, stamps_required)")
+        .eq("claim_code", code.trim().toUpperCase())
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return res.status(404).json({ error: "Invalid claim code. Verification failed." });
+
+      const business = data.businesses;
+      return res.json({
+        reward: {
+          id: data.id,
+          business_id: data.business_id,
+          customer_id: data.customer_id,
+          scan_id: data.scan_id,
+          type: data.type,
+          claimed: data.claimed,
+          claim_code: data.claim_code,
+          created_at: data.created_at,
+          claimed_at: data.claimed_at
+        },
+        customer_name: data.customers?.name || "Customer",
+        business_name_ar: business?.name_ar || "Business",
+        business_name_en: business?.name_en || "Business",
+        reward_name_ar: business ? (data.type === "lottery_win" ? business.reward_ar : `هدية بطاقة الـ ${business.stamps_required} أختام الكبرى ☕`) : "Reward",
+        reward_name_en: business ? (data.type === "lottery_win" ? business.reward_en : `Grand Loyalty Reward (${business.stamps_required} Stamps) ☕`) : "Reward"
+      });
+    } catch (error) {
+      return sendServerError(res, error);
+    }
+  }
+
   const dbState = loadDB();
 
   const reward = dbState.rewards.find(r => r.claim_code.toUpperCase() === code.trim().toUpperCase());
@@ -637,10 +1343,59 @@ app.get("/api/claim/:code", (req, res) => {
 });
 
 // 11. Mark Reward as Claimed (Cashier Verified Action)
-app.post("/api/rewards/claim", (req, res) => {
+app.post("/api/rewards/claim", async (req, res) => {
   const { code, pin } = req.body;
   if (!code) {
     return res.status(400).json({ error: "Code is required" });
+  }
+  if (!rateLimit(`claim:${req.ip}:${code}`, 10, 15 * 60 * 1000)) {
+    return res.status(429).json({ error: "Too many claim attempts. Please try again later." });
+  }
+
+  if (USE_SUPABASE) {
+    try {
+      const { supabaseAdmin } = requireSupabase();
+      const { data: reward, error: rewardError } = await supabaseAdmin
+        .from("rewards")
+        .select("*, businesses(*)")
+        .eq("claim_code", code.trim().toUpperCase())
+        .maybeSingle();
+
+      if (rewardError) throw rewardError;
+      if (!reward) return res.status(404).json({ error: "Claim code not found" });
+      if (reward.claimed) return res.status(400).json({ error: "Reward already claimed." });
+
+      const owner = await getLoggedInOwner(req);
+      const business = reward.businesses as Business | undefined;
+      if (!business) return res.status(404).json({ error: "Business record not found." });
+
+      const ownerCanClaim = owner?.business_id === business.id;
+      const pinCanClaim = pin && verifySecret(String(pin), business.cashier_pin_hash);
+
+      if (!ownerCanClaim && !pinCanClaim) {
+        return res.status(400).json({ error: "Incorrect Cashier PIN." });
+      }
+
+      const claimedAt = new Date().toISOString();
+      const { data: updatedReward, error: updateRewardError } = await supabaseAdmin
+        .from("rewards")
+        .update({ claimed: true, claimed_at: claimedAt })
+        .eq("id", reward.id)
+        .select("*")
+        .single();
+
+      if (updateRewardError) throw updateRewardError;
+
+      const { error: scanUpdateError } = await supabaseAdmin
+        .from("scans")
+        .update({ reward_claimed: true })
+        .eq("id", reward.scan_id);
+
+      if (scanUpdateError) throw scanUpdateError;
+      return res.json({ success: true, reward: updatedReward });
+    } catch (error) {
+      return sendServerError(res, error);
+    }
   }
 
   const dbState = loadDB();
@@ -654,15 +1409,22 @@ app.post("/api/rewards/claim", (req, res) => {
     return res.status(400).json({ error: "Reward already claimed." });
   }
 
-  // Set default cashier passcode/PIN: "1234"
-  const cashierPin = pin || "1234";
-  if (cashierPin !== "1234" && cashierPin !== "4321") {
+  const rewardBusiness = dbState.businesses.find(b => b.id === dbState.rewards[rIndex].business_id);
+  if (!rewardBusiness) {
+    return res.status(404).json({ error: "Business record not found." });
+  }
+
+  const owner = await getLoggedInOwner(req);
+  const ownerCanClaim = owner?.business_id === rewardBusiness.id;
+  const pinCanClaim = pin && verifySecret(String(pin), rewardBusiness.cashier_pin_hash);
+
+  if (!ownerCanClaim && !pinCanClaim) {
     return res.status(400).json({ error: "Incorrect Cashier PIN." });
   }
 
   // Update claim states
   dbState.rewards[rIndex].claimed = true;
-  dbState.rewards[rIndex].created_at = new Date().toISOString(); // update claim timestamp or keep original and log claim
+  dbState.rewards[rIndex].claimed_at = new Date().toISOString();
 
   // Also update corresponding scan if we find it
   const sIndex = dbState.scans.findIndex(s => s.id === dbState.rewards[rIndex].scan_id);

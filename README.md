@@ -1,20 +1,104 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Loya
 
-# Run and deploy your AI Studio app
+Loya is a bilingual scan-to-win loyalty SaaS for cafes, restaurants, retail, and service businesses. Customers scan a business QR code, enter their details, spin for an instant reward, and collect digital loyalty stamps. Owners manage QR codes, customers, rewards, and business settings from a dark dashboard.
 
-This contains everything you need to run your app locally.
+## Current Product Status
 
-View your app in AI Studio: https://ai.studio/apps/17a226f1-7721-4a5d-b7e0-13f81cd20355
+This repository is a hardened Vite + React + Express product build. It is no longer an AI Studio-only prototype:
+
+- Signed owner sessions with server-side password hashing
+- Server-side lottery decisions only
+- Per-business customer and reward records
+- Claim-code verification with hashed cashier PINs
+- Owner dashboard with analytics, QR, customers, rewards, and settings
+- Arabic RTL and English LTR interface
+- Supabase production schema included in `supabase/migrations/001_initial_schema.sql`
+- Supabase Auth/Postgres integration when Supabase env vars are configured
+
+The server automatically uses Supabase when `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are present. If they are missing, it falls back to local `data/db.json` storage for development demos.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
-
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+
+```bash
+npm install
+```
+
+2. Create `.env` from `.env.example` and set at least:
+
+```bash
+SESSION_SECRET=use-a-long-random-value
+DEFAULT_CASHIER_PIN=choose-a-temporary-owner-onboarding-pin
+APP_URL=http://localhost:3000
+```
+
+3. Start the app:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+Demo owner:
+
+- Email: `demo@loya.sa`
+- Password: `password123`
+
+## Production Build
+
+```bash
+npm run lint
+npm run build
+npm start
+```
+
+The Express server serves both `/api/*` and the built React app from `dist`.
+
+## Deployment
+
+The current build is best deployed as a Node service on Render, Fly.io, Railway, or a VPS:
+
+- Build command: `npm ci && npm run build`
+- Start command: `npm start`
+- Required env vars: `NODE_ENV=production`, `SESSION_SECRET`, `DEFAULT_CASHIER_PIN`, `APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+
+Vercel deployment requires migrating the Express API into serverless functions or converting the app to Next.js App Router. The original product brief asked for Next.js 14; this repo is Vite/Express, so treat that as a future architecture migration rather than a finished requirement.
+
+## Supabase Setup
+
+1. Create a Supabase project.
+2. Apply `supabase/migrations/001_initial_schema.sql`.
+3. Configure these env vars:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+4. Start the server. Registration and login will use Supabase Auth, while business/customer/scan/reward records will use Supabase Postgres.
+5. Keep `/api/scan` server-side. Do not expose lottery win calculation to the frontend.
+
+Local demo credentials only exist in JSON fallback mode. In Supabase mode, create an owner through `/register`.
+
+## Launch Checklist
+
+- Add logo upload through Supabase Storage.
+- Replace external QR image generation with an internal QR generator.
+- Implement real Apple Wallet `.pkpass` and Google Wallet JWT pass issuing.
+- Add branch/team roles if multiple cashiers need separate access.
+- Add subscription billing and plan limits.
+- Add export/consent controls for customer phone data.
+- Add monitoring, backups, and error logging before onboarding paying businesses.
+
+## Key Routes
+
+- `/` marketing page
+- `/register` owner signup
+- `/login` owner login
+- `/onboarding` guided setup
+- `/dashboard` owner dashboard
+- `/b/:slug` customer scan experience
+- `/claim/:code` cashier reward verification

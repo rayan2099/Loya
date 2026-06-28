@@ -187,7 +187,7 @@ export const translations = {
     reward_already_claimed: "This reward code was already claimed on {date}.",
     verified_success_title: "Reward Verified!",
     verified_success_desc: "Customer name: {name}. Reward: {reward}. Feel free to fulfill it now.",
-    cashier_pin_label: "Enter Cashier PIN (Set in settings or use default: 1234)",
+    cashier_pin_label: "Enter Cashier PIN",
     incorrect_pin: "Incorrect Cashier PIN."
   },
   ar: {
@@ -376,7 +376,7 @@ export const translations = {
     reward_already_claimed: "هذه الجائزة تم استلامها مسبقاً في تاريخ {date}.",
     verified_success_title: "تم التحقق وصلاحية الكود!",
     verified_success_desc: "العميل: {name}. الجائزة المستحقة: {reward}. يمكنك تقديمها له الآن وتأكيد الاستلام.",
-    cashier_pin_label: "أدخل رمز مرور المحاسب (معين بالإعدادات، أو الافتراضي: 1234)",
+    cashier_pin_label: "أدخل رمز مرور المحاسب",
     incorrect_pin: "رمز مرور المحاسب غير صحيح."
   }
 } as const;

@@ -219,7 +219,7 @@ export default function AuthPages({ lang, mode, onNavigate, onAuthSuccess }: Aut
             onClick={() => onNavigate(mode === "login" ? "/register" : "/login")}
             className="text-xs text-amber-500 hover:underline hover:text-amber-400 cursor-pointer"
           >
-            {mode === "login" ? t.have_account : t.no_account}
+            {mode === "login" ? t.no_account : t.have_account}
           </button>
         </div>
 

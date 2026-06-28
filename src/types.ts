@@ -14,6 +14,7 @@ export interface Business {
   stamps_required: number; // default 5
   reward_ar: string;
   reward_en: string;
+  cashier_pin_hash?: string;
   is_active: boolean;
   created_at: string;
 }
@@ -46,12 +47,15 @@ export interface Reward {
   claimed: boolean;
   claim_code: string; // 6-char unique uppercase code
   created_at: string;
+  claimed_at?: string;
 }
 
 export interface Owner {
   id: string;
   email: string;
   business_id: string;
+  password_hash?: string;
+  phone?: string;
 }
 
 // Stats types for owner dashboard
