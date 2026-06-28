@@ -1,3 +1,3 @@
-import { getDashboardCustomers } from "../../server-lib/handlers";
+import { getDashboardCustomers } from "../../server-lib/handlers.js";
 
 export default getDashboardCustomers;

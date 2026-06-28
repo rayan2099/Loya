@@ -18,7 +18,7 @@ import {
   getSupabaseAdmin,
   getSupabaseAnon,
   verifySecret,
-} from "./shared";
+} from "./shared.js";
 
 export async function registerOwner(req: any, res: any) {
   if (req.method !== "POST") return methodNotAllowed(res);

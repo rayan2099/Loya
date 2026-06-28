@@ -1,3 +1,3 @@
-import { getDashboardStats } from "../../server-lib/handlers";
+import { getDashboardStats } from "../../server-lib/handlers.js";
 
 export default getDashboardStats;
