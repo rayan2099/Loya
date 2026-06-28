@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  
+  /* Theme Sleek Colors mapped to existing design tokens */
+  --color-amber-500: #D4AF37;
+  --color-amber-400: #E5C354;
+  --color-amber-600: #B89327;
+  
+  /* Pure dark charcoal and deep grays mapped to adaptable variables */
+  --color-zinc-950: var(--bg-950);
+  --color-zinc-900: var(--bg-900);
+  --color-zinc-850: var(--bg-850);
+  --color-zinc-800: var(--bg-800);
+  --color-zinc-750: var(--bg-750);
+  --color-zinc-700: var(--bg-700);
+  
+  --shadow-lg: var(--shadow-lg-val);
+  --shadow-2xl: var(--shadow-2xl-val);
+}
+
+:root {
+  /* Dark Mode Default variables */
+  --bg-950: #0F0F0F;
+  --bg-900: #151515;
+  --bg-850: #1A1A1A;
+  --bg-800: rgba(255, 255, 255, 0.1);
+  --bg-750: rgba(255, 255, 255, 0.15);
+  --bg-700: rgba(255, 255, 255, 0.2);
+  --shadow-lg-val: 0 10px 30px -10px rgba(212, 175, 55, 0.15);
+  --shadow-2xl-val: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.light {
+  /* Premium Light Mode variables */
+  --bg-950: #F9F9F9; /* High-end ultra light gray background */
+  --bg-900: #FFFFFF; /* Sleek pure white container cards */
+  --bg-850: #F2F2F2; /* Soft grey inputs and panel accents */
+  --bg-800: rgba(0, 0, 0, 0.08); /* Clean modern borders */
+  --bg-750: rgba(0, 0, 0, 0.12);
+  --bg-700: rgba(0, 0, 0, 0.18);
+  --shadow-lg-val: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+  --shadow-2xl-val: 0 20px 40px -10px rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-950);
+    color: #FFFFFF;
+    font-family: var(--font-sans);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .light body, .light {
+    color: #0F0F0F;
+  }
+
+  /* Responsive Text conversion rules for Light Mode */
+  .light .text-white:not(.bg-emerald-500 *, .bg-purple-500 *, .bg-amber-500 *, .bg-emerald-600 *, .bg-red-500 *, [style*="background"] *, button *) {
+    color: #0F0F0F !important;
+  }
+  .light .text-zinc-100 { color: #151515 !important; }
+  .light .text-zinc-200 { color: #222222 !important; }
+  .light .text-zinc-300 { color: #333333 !important; }
+  .light .text-zinc-400 { color: #555555 !important; }
+  .light .text-zinc-500 { color: #777777 !important; }
+  .light .text-zinc-600 { color: #888888 !important; }
+
+  /* Handle opacity-based modifiers */
+  .light .text-white\/30 { color: rgba(15, 15, 15, 0.3) !important; }
+  .light .text-white\/40 { color: rgba(15, 15, 15, 0.4) !important; }
+  .light .text-white\/50 { color: rgba(15, 15, 15, 0.5) !important; }
+  .light .text-white\/70 { color: rgba(15, 15, 15, 0.7) !important; }
+  .light .text-white\/80 { color: rgba(15, 15, 15, 0.8) !important; }
+  .light .text-white\/90 { color: rgba(15, 15, 15, 0.9) !important; }
+
+  /* Clean up fields on Light Mode */
+  .light input, .light select, .light textarea {
+    color: #0F0F0F !important;
+    background-color: var(--bg-900) !important;
+    border-color: var(--bg-800) !important;
+  }
+
+  /* Keep text dark inside specific buttons that shift backgrounds to light */
+  .light button.bg-zinc-950,
+  .light button.bg-zinc-900,
+  .light button.bg-zinc-850,
+  .light button.bg-zinc-800,
+  .light button.bg-zinc-950 *,
+  .light button.bg-zinc-900 *,
+  .light button.bg-zinc-850 *,
+  .light button.bg-zinc-800 * {
+    color: #0F0F0F !important;
+  }
+
+  /* Dark component overrides (like the phone mockup on landing) */
+  .dark, .dark * {
+    --bg-950: #0F0F0F !important;
+    --bg-900: #151515 !important;
+    --bg-850: #1A1A1A !important;
+    --bg-800: rgba(255, 255, 255, 0.1) !important;
+    --bg-750: rgba(255, 255, 255, 0.15) !important;
+    --bg-700: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+  }
+  .dark .text-white { color: #FFFFFF !important; }
+  .dark .text-white\/40 { color: rgba(255, 255, 255, 0.4) !important; }
+  .dark .text-white\/50 { color: rgba(255, 255, 255, 0.5) !important; }
+  .dark .text-white\/70 { color: rgba(255, 255, 255, 0.7) !important; }
+  .dark .text-white\/80 { color: rgba(255, 255, 255, 0.8) !important; }
+}

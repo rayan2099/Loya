@@ -1,0 +1,6 @@
+{
+  "name": "Loya",
+  "description": "A scan-to-win loyalty and digital wallet stamp system for businesses to engage customers through instant lottery rewards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
