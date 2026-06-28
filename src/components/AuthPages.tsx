@@ -41,7 +41,13 @@ export default function AuthPages({ lang, mode, onNavigate, onAuthSuccess }: Aut
         body: JSON.stringify(body),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data: any = {};
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        data = { error: responseText || "Server returned an invalid response." };
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");

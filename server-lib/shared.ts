@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import { Business, Owner } from "../src/types";
+import type { Business, Owner } from "../src/types";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "local-dev-change-me";
 export const DEFAULT_CASHIER_PIN = process.env.DEFAULT_CASHIER_PIN || "1234";
@@ -9,17 +9,21 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error("Missing Supabase environment variables.");
+export const SUPABASE_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_SERVICE_ROLE_KEY);
+
+export const supabaseAdmin = createClient(SUPABASE_URL || "https://example.supabase.co", SUPABASE_SERVICE_ROLE_KEY || "missing-service-role-key", {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+export const supabaseAnon = createClient(SUPABASE_URL || "https://example.supabase.co", SUPABASE_ANON_KEY || "missing-anon-key", {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+export function ensureSupabaseConfigured() {
+  if (!SUPABASE_CONFIGURED) {
+    throw new Error("Missing Supabase environment variables. Check NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.");
+  }
 }
-
-export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
-
-export const supabaseAnon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
 
 type TokenPayload = {
   ownerId: string;
@@ -74,6 +78,8 @@ export function createOwnerSession(owner: Owner): string {
 }
 
 export async function getLoggedInOwner(req: any): Promise<Owner | null> {
+  if (!SUPABASE_CONFIGURED) return null;
+
   const authHeader = req.headers?.authorization || req.headers?.Authorization;
   if (!authHeader || !String(authHeader).startsWith("Bearer ")) return null;
 

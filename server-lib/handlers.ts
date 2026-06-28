@@ -1,8 +1,9 @@
 import crypto from "crypto";
-import { Customer, DashboardStats, Reward, Scan } from "../src/types";
+import type { Customer, DashboardStats, Reward, Scan } from "../src/types";
 import {
   DEFAULT_CASHIER_PIN,
   createOwnerSession,
+  ensureSupabaseConfigured,
   generateUniqueClaimCode,
   getClientIp,
   getLoggedInOwner,
@@ -34,6 +35,7 @@ export async function registerOwner(req: any, res: any) {
   }
 
   try {
+    ensureSupabaseConfigured();
     const normalizedEmail = String(email).toLowerCase().trim();
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
       email: normalizedEmail,
@@ -118,6 +120,7 @@ export async function loginOwner(req: any, res: any) {
   }
 
   try {
+    ensureSupabaseConfigured();
     const normalizedEmail = String(email).toLowerCase().trim();
     const { data: authData, error: authError } = await supabaseAnon.auth.signInWithPassword({
       email: normalizedEmail,
@@ -157,10 +160,11 @@ export async function loginOwner(req: any, res: any) {
 export async function getMe(req: any, res: any) {
   if (req.method !== "GET") return methodNotAllowed(res);
 
-  const owner = await getLoggedInOwner(req);
-  if (!owner) return res.status(401).json({ error: "Unauthorized" });
-
   try {
+    ensureSupabaseConfigured();
+    const owner = await getLoggedInOwner(req);
+    if (!owner) return res.status(401).json({ error: "Unauthorized" });
+
     const { data: business, error } = await supabaseAdmin
       .from("businesses")
       .select("*")
@@ -182,6 +186,7 @@ export async function getBusinessBySlug(req: any, res: any) {
 
   const slug = String(req.query.slug || "");
   try {
+    ensureSupabaseConfigured();
     const { data: business, error } = await supabaseAdmin
       .from("businesses")
       .select("*")
@@ -200,10 +205,11 @@ export async function getBusinessBySlug(req: any, res: any) {
 export async function updateBusiness(req: any, res: any) {
   if (req.method !== "PUT") return methodNotAllowed(res);
 
-  const owner = await getLoggedInOwner(req);
-  if (!owner) return res.status(401).json({ error: "Unauthorized" });
-
   try {
+    ensureSupabaseConfigured();
+    const owner = await getLoggedInOwner(req);
+    if (!owner) return res.status(401).json({ error: "Unauthorized" });
+
     const { cashier_pin, cashier_pin_hash, owner_id, id, created_at, ...updatedData } = req.body || {};
 
     if (updatedData.slug) {
@@ -260,6 +266,7 @@ export async function executeScan(req: any, res: any) {
   }
 
   try {
+    ensureSupabaseConfigured();
     const { data: business, error: businessError } = await supabaseAdmin
       .from("businesses")
       .select("*")
@@ -393,10 +400,11 @@ export async function executeScan(req: any, res: any) {
 export async function getDashboardStats(req: any, res: any) {
   if (req.method !== "GET") return methodNotAllowed(res);
 
-  const owner = await getLoggedInOwner(req);
-  if (!owner) return res.status(401).json({ error: "Unauthorized" });
-
   try {
+    ensureSupabaseConfigured();
+    const owner = await getLoggedInOwner(req);
+    if (!owner) return res.status(401).json({ error: "Unauthorized" });
+
     const bid = owner.business_id;
     const [{ data: bScans, error: scansError }, { data: bCustomers, error: customersError }, { data: bRewards, error: rewardsError }] = await Promise.all([
       supabaseAdmin.from("scans").select("*").eq("business_id", bid),
@@ -447,11 +455,12 @@ export async function getDashboardStats(req: any, res: any) {
 export async function getDashboardCustomers(req: any, res: any) {
   if (req.method !== "GET") return methodNotAllowed(res);
 
-  const owner = await getLoggedInOwner(req);
-  if (!owner) return res.status(401).json({ error: "Unauthorized" });
-
   const search = String(req.query.search || "").toLowerCase();
   try {
+    ensureSupabaseConfigured();
+    const owner = await getLoggedInOwner(req);
+    if (!owner) return res.status(401).json({ error: "Unauthorized" });
+
     let query = supabaseAdmin
       .from("customers")
       .select("*")
@@ -471,10 +480,11 @@ export async function getDashboardCustomers(req: any, res: any) {
 export async function getDashboardRewards(req: any, res: any) {
   if (req.method !== "GET") return methodNotAllowed(res);
 
-  const owner = await getLoggedInOwner(req);
-  if (!owner) return res.status(401).json({ error: "Unauthorized" });
-
   try {
+    ensureSupabaseConfigured();
+    const owner = await getLoggedInOwner(req);
+    if (!owner) return res.status(401).json({ error: "Unauthorized" });
+
     const { data, error } = await supabaseAdmin
       .from("rewards")
       .select("*, customers(name, phone)")
@@ -502,6 +512,7 @@ export async function getClaim(req: any, res: any) {
   }
 
   try {
+    ensureSupabaseConfigured();
     const { data, error } = await supabaseAdmin
       .from("rewards")
       .select("*, customers(name), businesses(name_ar, name_en, reward_ar, reward_en, stamps_required)")
@@ -545,6 +556,7 @@ export async function claimReward(req: any, res: any) {
   }
 
   try {
+    ensureSupabaseConfigured();
     const { data: reward, error: rewardError } = await supabaseAdmin
       .from("rewards")
       .select("*, businesses(*)")
