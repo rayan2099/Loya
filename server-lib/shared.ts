@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import { createClient } from "@supabase/supabase-js";
+import * as crypto from "crypto";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { Business, Owner } from "../src/types";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "local-dev-change-me";
@@ -11,18 +11,33 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const SUPABASE_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_SERVICE_ROLE_KEY);
 
-export const supabaseAdmin = createClient(SUPABASE_URL || "https://example.supabase.co", SUPABASE_SERVICE_ROLE_KEY || "missing-service-role-key", {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
-
-export const supabaseAnon = createClient(SUPABASE_URL || "https://example.supabase.co", SUPABASE_ANON_KEY || "missing-anon-key", {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+let supabaseAdminClient: SupabaseClient | null = null;
+let supabaseAnonClient: SupabaseClient | null = null;
 
 export function ensureSupabaseConfigured() {
   if (!SUPABASE_CONFIGURED) {
     throw new Error("Missing Supabase environment variables. Check NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.");
   }
+}
+
+export function getSupabaseAdmin() {
+  ensureSupabaseConfigured();
+  if (!supabaseAdminClient) {
+    supabaseAdminClient = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+  return supabaseAdminClient;
+}
+
+export function getSupabaseAnon() {
+  ensureSupabaseConfigured();
+  if (!supabaseAnonClient) {
+    supabaseAnonClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+  return supabaseAnonClient;
 }
 
 type TokenPayload = {
@@ -86,7 +101,7 @@ export async function getLoggedInOwner(req: any): Promise<Owner | null> {
   const payload = verifyToken(String(authHeader).substring(7));
   if (!payload) return null;
 
-  const { data: business, error } = await supabaseAdmin
+  const { data: business, error } = await getSupabaseAdmin()
     .from("businesses")
     .select("id")
     .eq("owner_id", payload.ownerId)
@@ -149,7 +164,7 @@ function generateClaimCode(prefix: "W" | "S"): string {
 export async function generateUniqueClaimCode(prefix: "W" | "S"): Promise<string> {
   let code = generateClaimCode(prefix);
   for (let i = 0; i < 12; i++) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from("rewards")
       .select("id")
       .eq("claim_code", code)

@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import * as crypto from "crypto";
 import type { Customer, DashboardStats, Reward, Scan } from "../src/types";
 import {
   DEFAULT_CASHIER_PIN,
@@ -15,8 +15,8 @@ import {
   rateLimit,
   sanitizeSlug,
   sendError,
-  supabaseAdmin,
-  supabaseAnon,
+  getSupabaseAdmin,
+  getSupabaseAnon,
   verifySecret,
 } from "./shared";
 
@@ -36,6 +36,7 @@ export async function registerOwner(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const normalizedEmail = String(email).toLowerCase().trim();
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
       email: normalizedEmail,
@@ -121,6 +122,8 @@ export async function loginOwner(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
+    const supabaseAnon = getSupabaseAnon();
     const normalizedEmail = String(email).toLowerCase().trim();
     const { data: authData, error: authError } = await supabaseAnon.auth.signInWithPassword({
       email: normalizedEmail,
@@ -162,6 +165,7 @@ export async function getMe(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const owner = await getLoggedInOwner(req);
     if (!owner) return res.status(401).json({ error: "Unauthorized" });
 
@@ -187,6 +191,7 @@ export async function getBusinessBySlug(req: any, res: any) {
   const slug = String(req.query.slug || "");
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: business, error } = await supabaseAdmin
       .from("businesses")
       .select("*")
@@ -207,6 +212,7 @@ export async function updateBusiness(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const owner = await getLoggedInOwner(req);
     if (!owner) return res.status(401).json({ error: "Unauthorized" });
 
@@ -267,6 +273,7 @@ export async function executeScan(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: business, error: businessError } = await supabaseAdmin
       .from("businesses")
       .select("*")
@@ -402,6 +409,7 @@ export async function getDashboardStats(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const owner = await getLoggedInOwner(req);
     if (!owner) return res.status(401).json({ error: "Unauthorized" });
 
@@ -458,6 +466,7 @@ export async function getDashboardCustomers(req: any, res: any) {
   const search = String(req.query.search || "").toLowerCase();
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const owner = await getLoggedInOwner(req);
     if (!owner) return res.status(401).json({ error: "Unauthorized" });
 
@@ -482,6 +491,7 @@ export async function getDashboardRewards(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const owner = await getLoggedInOwner(req);
     if (!owner) return res.status(401).json({ error: "Unauthorized" });
 
@@ -513,6 +523,7 @@ export async function getClaim(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from("rewards")
       .select("*, customers(name), businesses(name_ar, name_en, reward_ar, reward_en, stamps_required)")
@@ -557,6 +568,7 @@ export async function claimReward(req: any, res: any) {
 
   try {
     ensureSupabaseConfigured();
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: reward, error: rewardError } = await supabaseAdmin
       .from("rewards")
       .select("*, businesses(*)")
