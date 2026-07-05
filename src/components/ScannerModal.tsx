@@ -137,7 +137,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
           {/* Scanned Customer Card Banner */}
           {selectedCustomer && (
-            <div className="bg-gradient-to-br from-[#1E293B] to-gray-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-gray-800">
+            <div className="bg-[#1E293B] bg-linear-to-br bg-gradient-to-br from-[#1E293B] to-gray-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-gray-800">
               <div className="absolute -top-6 -left-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl" />
 
               <div className="flex items-center justify-between mb-4">

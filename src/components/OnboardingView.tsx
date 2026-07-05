@@ -69,7 +69,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white flex items-center justify-between shadow-sm">
+          <div className="p-3.5 rounded-2xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white flex items-center justify-between shadow-sm">
             <div className="text-right flex-1">
               <h4 className="font-bold text-xs flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
@@ -121,7 +121,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
               </span>
             </div>
 
-            <div className="p-5 bg-gradient-to-br from-orange-50 via-white to-orange-50 rounded-3xl border-2 border-orange-200 shadow-inner mb-4">
+            <div className="p-5 bg-orange-50 bg-linear-to-br bg-gradient-to-br from-orange-50 via-white to-orange-50 rounded-3xl border-2 border-orange-200 shadow-inner mb-4">
               <QrCode className="w-36 h-36 text-gray-900 mx-auto" />
             </div>
 

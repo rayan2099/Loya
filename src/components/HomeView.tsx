@@ -58,7 +58,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Time-Aware Greeting Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-5 rounded-3xl shadow-md border border-slate-700">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#1E293B] bg-linear-to-r bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-5 rounded-3xl shadow-md border border-slate-700">
         <div>
           <span className="text-xs text-teal-300 font-bold tracking-wide uppercase block mb-0.5">
             {greeting}
@@ -148,7 +148,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             onClick={onOpenScanner}
-            className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-between group"
+            className="p-4 sm:p-5 rounded-2xl bg-[#0D9488] bg-linear-to-br bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-between group"
           >
             <div className="text-right min-w-0 flex-1 pr-2">
               <h4 className="font-bold text-sm flex items-center gap-1.5 truncate">

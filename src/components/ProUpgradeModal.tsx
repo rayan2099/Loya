@@ -32,7 +32,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-hidden shadow-2xl border border-[#E2E8F0] flex flex-col">
         {/* Top Header Gradient */}
-        <div className="p-5 sm:p-6 bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#0D9488] text-white relative overflow-hidden shrink-0">
+        <div className="p-5 sm:p-6 bg-[#1E293B] bg-linear-to-br bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#0D9488] text-white relative overflow-hidden shrink-0">
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-[#0D9488]/20 blur-3xl pointer-events-none" />
 
           <button
@@ -162,7 +162,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
               <button
                 type="button"
                 onClick={handleUpgrade}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#0D9488] to-[#0F766E] hover:from-[#0F766E] hover:to-[#0D9488] text-white font-black text-base sm:text-lg flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-98"
+                className="w-full py-4 rounded-2xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] hover:from-[#0F766E] hover:to-[#0D9488] text-white font-black text-base sm:text-lg flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-98"
               >
                 <Sparkles className="w-5 h-5 animate-spin" />
                 <span>

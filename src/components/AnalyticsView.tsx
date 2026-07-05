@@ -33,7 +33,7 @@ export const AnalyticsView: React.FC = () => {
         {storeProfile.plan === 'free' && (
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-xs flex items-center gap-1.5 shadow-md hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-xs flex items-center gap-1.5 shadow-md hover:opacity-90 transition-opacity"
           >
             <Sparkles className="w-4 h-4" />
             <span>{lang === 'ar' ? 'ترقية لباقة Pro المفتوحة 🚀' : 'Upgrade to Pro Unlimited 🚀'}</span>
@@ -45,7 +45,7 @@ export const AnalyticsView: React.FC = () => {
       {storeProfile.plan === 'free' ? (
         <div className="relative rounded-3xl overflow-hidden border border-[#E2E8F0] shadow-md bg-white p-6 sm:p-10 text-center space-y-5">
           {/* Simulated blurred backdrop behind paywall */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/80 to-white backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 space-y-4">
+          <div className="absolute inset-0 bg-white/90 bg-linear-to-b bg-gradient-to-b from-white/40 via-white/80 to-white backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 space-y-4">
             <div className="w-16 h-16 rounded-3xl bg-[#1E293B] text-[#0D9488] flex items-center justify-center shadow-xl border border-[#0D9488]/30">
               <Lock className="w-8 h-8 animate-pulse" />
             </div>
@@ -66,7 +66,7 @@ export const AnalyticsView: React.FC = () => {
 
             <button
               onClick={() => setShowUpgradeModal(true)}
-              className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-sm flex items-center gap-2 shadow-xl hover:scale-105 transition-transform"
+              className="px-8 py-3.5 rounded-2xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-sm flex items-center gap-2 shadow-xl hover:scale-105 transition-transform"
             >
               <Sparkles className="w-5 h-5" />
               <span>{lang === 'ar' ? 'فتح كافة التقارير والترقية الآن إلى Pro 🚀' : 'Unlock Analytics & Upgrade to Pro 🚀'}</span>

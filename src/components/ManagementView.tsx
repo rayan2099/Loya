@@ -148,7 +148,7 @@ export const ManagementView: React.FC = () => {
       {activeTab === 'staff' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* Join-Code & Quick WhatsApp Invite System */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white shadow-xl space-y-4 border border-slate-700">
+          <div className="p-5 rounded-3xl bg-[#1E293B] bg-linear-to-br bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white shadow-xl space-y-4 border border-slate-700">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export const ManagementView: React.FC = () => {
       {activeTab === 'settings' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* Wallet Sync Dashboard (Section O) */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white shadow-xl space-y-5">
+          <div className="p-5 rounded-3xl bg-[#0D9488] bg-linear-to-br bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white shadow-xl space-y-5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/20 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center border border-white/30 shrink-0">

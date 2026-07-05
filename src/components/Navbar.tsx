@@ -35,7 +35,7 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
                 }}
                 className="flex flex-col items-center -mt-5 group px-1 shrink-0 cursor-pointer"
               >
-                <div className="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#0F766E] shadow-md flex items-center justify-center transform transition-all duration-200 group-active:scale-95 group-hover:scale-105 border-4 border-white">
+                <div className="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] rounded-2xl bg-[#0D9488] bg-linear-to-br bg-gradient-to-br from-[#0D9488] to-[#0F766E] shadow-md flex items-center justify-center transform transition-all duration-200 group-active:scale-95 group-hover:scale-105 border-4 border-white">
                   {item.icon}
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-bold text-[#0D9488] mt-1 whitespace-nowrap">
