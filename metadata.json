@@ -1,0 +1,6 @@
+{
+  "name": "نقاطي | Niqati - Loyalty Card & Wallet Builder",
+  "description": "100% clone of Niqati loyalty card platform. Build custom Apple & Google Wallet loyalty cards, manage point systems, scan customer QRs, track analytics, and manage cashier permissions.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
