@@ -18,14 +18,159 @@ import {
   Lock,
   Smartphone,
   Sparkles,
+  Coffee,
+  Utensils,
+  ShoppingBag,
+  Scissors,
+  Dumbbell,
+  Car,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const { lang } = useStore();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedBusiness, setSelectedBusiness] = useState('coffee');
+
+  const businessPlaybooks = [
+    {
+      id: 'coffee',
+      icon: Coffee,
+      titleAr: 'مقهى',
+      titleEn: 'Cafe',
+      setupAr: 'اشتر 5 واحصل على السادس مجاناً',
+      setupEn: 'Buy 5, get the 6th free',
+      color: 'bg-amber-50 text-amber-700 border-amber-200',
+    },
+    {
+      id: 'restaurant',
+      icon: Utensils,
+      titleAr: 'مطعم',
+      titleEn: 'Restaurant',
+      setupAr: 'نقاط حسب الفاتورة + هدية للزيارات المتكررة',
+      setupEn: 'Bill-based points plus visit rewards',
+      color: 'bg-rose-50 text-rose-700 border-rose-200',
+    },
+    {
+      id: 'retail',
+      icon: ShoppingBag,
+      titleAr: 'تجزئة',
+      titleEn: 'Retail',
+      setupAr: 'نقاط لكل ريال مع مكافآت قابلة للاستبدال',
+      setupEn: 'Points per riyal with redeemable rewards',
+      color: 'bg-sky-50 text-sky-700 border-sky-200',
+    },
+    {
+      id: 'salon',
+      icon: Scissors,
+      titleAr: 'صالون',
+      titleEn: 'Salon',
+      setupAr: 'طابع لكل زيارة وخدمة مجانية بعد الاكتمال',
+      setupEn: 'Visit stamps with a free service reward',
+      color: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+    },
+    {
+      id: 'gym',
+      icon: Dumbbell,
+      titleAr: 'نادي',
+      titleEn: 'Gym',
+      setupAr: 'مكافآت للالتزام وتجديد الاشتراك',
+      setupEn: 'Rewards for consistency and renewals',
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    },
+    {
+      id: 'cars',
+      icon: Car,
+      titleAr: 'سيارات',
+      titleEn: 'Auto',
+      setupAr: 'غسلة أو خدمة مجانية بعد عدد زيارات محدد',
+      setupEn: 'Free wash or service after repeat visits',
+      color: 'bg-slate-50 text-slate-700 border-slate-200',
+    },
+  ];
+
+  const selectedPlaybook = businessPlaybooks.find((item) => item.id === selectedBusiness) || businessPlaybooks[0];
 
   const slides = [
+    {
+      tagAr: 'إعداد سريع حسب نوع النشاط',
+      tagEn: 'Quick setup by business type',
+      titleAr: 'اختر نشاطك وسنقترح أفضل نظام ولاء',
+      subAr: 'ابدأ من قالب جاهز يناسب منشأتك، ثم عدّل النقاط والطوابع والمكافآت وقتما تريد',
+      titleEn: 'Choose your business and get the right loyalty setup',
+      subEn: 'Start from a ready playbook, then adjust points, stamps, and rewards anytime',
+      renderVisual: () => {
+        const ActiveIcon = selectedPlaybook.icon;
+
+        return (
+          <div className="space-y-4 my-3 animate-in fade-in zoom-in-95 duration-300">
+            <div className="grid grid-cols-2 gap-2.5">
+              {businessPlaybooks.map((playbook) => {
+                const Icon = playbook.icon;
+                const active = selectedBusiness === playbook.id;
+
+                return (
+                  <button
+                    key={playbook.id}
+                    type="button"
+                    onClick={() => setSelectedBusiness(playbook.id)}
+                    className={`p-3 rounded-2xl border text-start transition-all active:scale-98 ${
+                      active
+                        ? 'bg-[#0D9488] border-[#0D9488] text-white shadow-lg shadow-teal-700/20'
+                        : 'bg-white border-slate-200 text-[#1E293B] hover:border-[#0D9488]/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`w-9 h-9 rounded-xl flex items-center justify-center border ${active ? 'bg-white/15 border-white/20' : playbook.color}`}>
+                        <Icon className="w-4.5 h-4.5" />
+                      </span>
+                      <span className="font-extrabold text-sm">{lang === 'ar' ? playbook.titleAr : playbook.titleEn}</span>
+                    </div>
+                    <p className={`mt-2 text-[10px] leading-relaxed ${active ? 'text-white/80' : 'text-[#64748B]'}`}>
+                      {lang === 'ar' ? playbook.setupAr : playbook.setupEn}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="rounded-3xl bg-white border border-slate-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-extrabold text-[#0D9488] uppercase tracking-wide">
+                    {lang === 'ar' ? 'القالب المقترح' : 'Recommended playbook'}
+                  </p>
+                  <h4 className="text-base font-extrabold text-[#1E293B] mt-1">
+                    {lang === 'ar' ? selectedPlaybook.setupAr : selectedPlaybook.setupEn}
+                  </h4>
+                  <p className="text-xs text-[#64748B] leading-relaxed mt-1.5">
+                    {lang === 'ar'
+                      ? 'سيتم تجهيز بطاقة المحفظة، طريقة الكسب، والمكافأة الأولى بناءً على اختيارك.'
+                      : 'We prepare the wallet card, earning rule, and first reward from your choice.'}
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] text-[#0D9488] flex items-center justify-center shrink-0">
+                  <ActiveIcon className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                {[
+                  lang === 'ar' ? 'نوع البطاقة' : 'Card type',
+                  lang === 'ar' ? 'المكافأة' : 'Reward',
+                  lang === 'ar' ? 'الموظفين' : 'Staff flow',
+                ].map((label) => (
+                  <div key={label} className="rounded-2xl bg-[#F8FAFC] border border-slate-100 px-2 py-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
+                    <span className="text-[9px] font-bold text-[#64748B] leading-tight block">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
     {
       tagAr: 'شركة الحلول السعودية لتقنية المعلومات',
       tagEn: 'Saudi IT Solutions Co.',
@@ -415,4 +560,3 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
     </div>
   );
 };
-
