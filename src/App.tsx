@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { OnboardingView } from './components/OnboardingView';
 import { AuthView } from './components/AuthView';
@@ -16,9 +16,15 @@ import { ManagementView } from './components/ManagementView';
 import { ScannerModal } from './components/ScannerModal';
 
 const AppContent: React.FC = () => {
-  const { showOnboarding, setShowOnboarding, activeTab } = useStore();
+  const { showOnboarding, setShowOnboarding, activeTab, lang } = useStore();
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [showScannerModal, setShowScannerModal] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.title = 'loya';
+  }, [lang]);
 
   if (showOnboarding) {
     return (
@@ -35,12 +41,12 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 text-[#1E293B] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 text-[#1E293B] flex flex-col font-sans" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Top Header */}
       <Header />
 
       {/* Main View Area */}
-      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 space-y-5">
+      <main className="flex-1 w-full max-w-xl xl:max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
         {activeTab === 'home' && <HomeView onOpenScanner={() => setShowScannerModal(true)} />}
         {activeTab === 'customers' && <CustomersView />}
         {activeTab === 'analytics' && <AnalyticsView />}
@@ -50,7 +56,7 @@ const AppContent: React.FC = () => {
       {/* Bottom Navigation Bar */}
       <Navbar onOpenScanner={() => setShowScannerModal(true)} />
 
-      {/* Instant POS Scanner Simulator Modal */}
+      {/* Live cashier scanner */}
       {showScannerModal && <ScannerModal onClose={() => setShowScannerModal(false)} />}
     </div>
   );
@@ -63,4 +69,3 @@ export default function App() {
     </StoreProvider>
   );
 }
-

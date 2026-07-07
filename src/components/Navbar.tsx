@@ -22,7 +22,7 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E2E8F0] shadow-sm pb-safe">
-      <div className="max-w-xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-around">
+      <div className="max-w-xl xl:max-w-7xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-around xl:justify-center xl:gap-10">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           if (item.isScanner) {

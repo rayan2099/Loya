@@ -15,6 +15,8 @@ export type BusinessCategory =
 
 export type CardRuleType = 'points_per_riyal' | 'points_per_visit' | 'stamp_buy_5' | 'manual';
 
+export type RewardEngineType = 'instant' | 'stamps' | 'both';
+
 export type CardExpiry = 'never' | '90_days' | '6_months' | '1_year' | '2_years';
 
 export interface CardReward {
@@ -32,6 +34,10 @@ export interface LoyaltyCard {
   pointsPerUnit: number; // e.g. 1 point per 1 SAR or 1 stamp per visit
   minSpend?: number;
   stampTarget?: number; // e.g. 5 or 6 for stamp card
+  rewardEngine: RewardEngineType;
+  winProbability: number;
+  instantGiftAr?: string;
+  instantGiftEn?: string;
   expiry: CardExpiry;
   color: string; // hex
   textColor: '#FFFFFF' | '#000000';

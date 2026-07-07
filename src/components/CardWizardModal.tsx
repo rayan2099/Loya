@@ -12,7 +12,7 @@ import {
   Lock,
   Zap,
 } from 'lucide-react';
-import { CardExpiry, CardReward, CardRuleType, LoyaltyCard } from '../types';
+import { CardExpiry, CardReward, CardRuleType, LoyaltyCard, RewardEngineType } from '../types';
 import { useStore } from '../context/StoreContext';
 import { WalletCardPreview } from './WalletCardPreview';
 import { FreeCardDesignModal } from './FreeCardDesignModal';
@@ -23,7 +23,7 @@ interface CardWizardModalProps {
 }
 
 const PRESET_COLORS = [
-  { nameAr: 'برتقالي نقاطي', nameEn: 'Loya Orange', hex: '#FF6B35' },
+  { nameAr: 'برتقالي loya', nameEn: 'Loya Orange', hex: '#FF6B35' },
   { nameAr: 'أزرق ملكي', nameEn: 'Royal Blue', hex: '#3B82F6' },
   { nameAr: 'أخضر زمردي', nameEn: 'Emerald Green', hex: '#10B981' },
   { nameAr: 'بنفسجي فاخر', nameEn: 'Luxury Purple', hex: '#8B5CF6' },
@@ -61,7 +61,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
     initialCard?.bannerTitle || (lang === 'ar' ? 'جمّع نقاطك واكسب مكافآت' : 'Collect Points & Earn Rewards')
   );
   const [bannerSubtext, setBannerSubtext] = useState(
-    initialCard?.bannerSubtext || (lang === 'ar' ? 'بواسطة نقاطي' : 'Powered by Loya')
+    initialCard?.bannerSubtext || (lang === 'ar' ? 'بواسطة loya' : 'Powered by Loya')
   );
 
   // Links
@@ -71,10 +71,10 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
   const [customNote, setCustomNote] = useState(initialCard?.backLinks.customNote || '');
 
   // Rewards & Win Probability
-  const [rewardMethod, setRewardMethod] = useState<'instant' | 'stamps' | 'both'>('both');
-  const [winProb, setWinProb] = useState<number>(10);
-  const [instantGiftAr, setInstantGiftAr] = useState('مكافأة مميزة مجانية 🎁');
-  const [instantGiftEn, setInstantGiftEn] = useState('Free Special Reward 🎁');
+  const [rewardMethod, setRewardMethod] = useState<RewardEngineType>(initialCard?.rewardEngine || 'both');
+  const [winProb, setWinProb] = useState<number>(initialCard?.winProbability ?? 10);
+  const [instantGiftAr, setInstantGiftAr] = useState(initialCard?.instantGiftAr || 'مكافأة مميزة مجانية 🎁');
+  const [instantGiftEn, setInstantGiftEn] = useState(initialCard?.instantGiftEn || 'Free Special Reward 🎁');
 
   const [rewards, setRewards] = useState<CardReward[]>(
     initialCard?.rewards || [
@@ -102,6 +102,10 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
     pointsPerUnit,
     minSpend,
     stampTarget,
+    rewardEngine: rewardMethod,
+    winProbability: rewardMethod === 'stamps' ? 0 : winProb,
+    instantGiftAr,
+    instantGiftEn,
     expiry,
     color,
     textColor,
@@ -159,7 +163,9 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                   : 'Design New Loyalty Card'}
               </h3>
               <p className="text-[11px] sm:text-xs text-[#64748B]">
-                {lang === 'ar' ? `الخطوة ${step} من ٥ • متوافق مع Apple & Google Wallet` : `Step ${step} of 5 • Apple & Google Wallet ready`}
+                <span dir="ltr">
+                  {lang === 'ar' ? `الخطوة ${step} من 5 • متوافق مع Apple & Google Wallet` : `Step ${step} of 5 • Apple & Google Wallet ready`}
+                </span>
               </p>
             </div>
           </div>
@@ -174,11 +180,11 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
         {/* Wizard Progress Bar */}
         <div className="grid grid-cols-5 border-b border-[#E2E8F0] bg-white">
           {[
-            { s: 1, labelAr: '١. المعلومات', labelEn: '1. Info' },
-            { s: 2, labelAr: '٢. النقاط', labelEn: '2. Rules' },
-            { s: 3, labelAr: '٣. التصميم', labelEn: '3. Design' },
-            { s: 4, labelAr: '٤. المكافآت', labelEn: '4. Rewards' },
-            { s: 5, labelAr: '٥. الأمان', labelEn: '5. Launch' },
+            { s: 1, labelAr: '1. المعلومات', labelEn: '1. Info' },
+            { s: 2, labelAr: '2. النقاط', labelEn: '2. Rules' },
+            { s: 3, labelAr: '3. التصميم', labelEn: '3. Design' },
+            { s: 4, labelAr: '4. المكافآت', labelEn: '4. Rewards' },
+            { s: 5, labelAr: '5. الأمان', labelEn: '5. Launch' },
           ].map((item) => (
             <button
               key={item.s}
@@ -301,7 +307,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                 <div className="grid grid-cols-2 gap-2.5">
                   {[
                     { id: 'points_per_riyal', labelAr: 'نقطة / ريال', desc: 'نقطة لكل ريال مشتريات' },
-                    { id: 'stamp_buy_5', labelAr: 'اشترى ٥ (طوابع)', desc: 'طابع لكل كوب والسادس مجاناً' },
+                    { id: 'stamp_buy_5', labelAr: 'اشتر 5 (طوابع)', desc: 'طابع لكل كوب والسادس مجاناً' },
                     { id: 'points_per_visit', labelAr: 'نقطة / زيارة', desc: 'نقطة ثابتة عند كل زيارة' },
                     { id: 'manual', labelAr: 'إضافة يدوية', desc: 'الكاشير يحدد النقاط يدوياً' },
                   ].map((rt) => (
@@ -342,7 +348,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                 ) : (
                   <div>
                     <label className="text-xs font-bold text-gray-700 block mb-1">
-                      {lang === 'ar' ? 'عدد النقاط المكتسبة لكل ١ ريال' : 'Points per 1 SAR'}
+                      {lang === 'ar' ? 'عدد النقاط المكتسبة لكل 1 ريال' : 'Points per 1 SAR'}
                     </label>
                     <input
                       type="number"
@@ -364,8 +370,8 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                     className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 text-sm bg-white"
                   >
                     <option value="never">{lang === 'ar' ? 'بدون انتهاء صلاحية' : 'Never expire'}</option>
-                    <option value="90_days">{lang === 'ar' ? '٩٠ يوماً' : '90 Days'}</option>
-                    <option value="6_months">{lang === 'ar' ? '٦ أشهر' : '6 Months'}</option>
+                    <option value="90_days">{lang === 'ar' ? '90 يوماً' : '90 Days'}</option>
+                    <option value="6_months">{lang === 'ar' ? '6 أشهر' : '6 Months'}</option>
                     <option value="1_year">{lang === 'ar' ? 'سنة واحدة' : '1 Year'}</option>
                     <option value="2_years">{lang === 'ar' ? 'سنتان' : '2 Years'}</option>
                   </select>
@@ -516,7 +522,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                       className="w-full accent-amber-500 cursor-pointer"
                     />
                     <p className="text-[10px] text-amber-800 font-semibold">
-                      💡 {lang === 'ar' ? `مثال: كل ١٠ عملاء يمسحون الباركود، سيفوز حوالي عميل واحد (${winProb}%) بمكافأة فورية لتعزيز التفاعل!` : `Approx. ${winProb}% of scanned visits trigger instant prize notification.`}
+                      💡 {lang === 'ar' ? `مثال: كل 10 عملاء يمسحون الباركود، سيفوز حوالي عميل واحد (${winProb}%) بمكافأة فورية لتعزيز التفاعل!` : `Approx. ${winProb}% of scanned visits trigger instant prize notification.`}
                     </p>
 
                     <div className="grid grid-cols-2 gap-2 pt-1">
@@ -648,7 +654,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                     </h4>
                     <p className="text-[11px] text-[#64748B] mt-1 leading-relaxed">
                       {lang === 'ar'
-                        ? 'يتمتع نظام نقاطي بضوابط أمان متقدمة تمنع التلاعب بالنقاط أو الإضافة المكررة في فترة قصيرة.'
+                        ? 'يتمتع نظام loya بضوابط أمان متقدمة تمنع التلاعب بالنقاط أو الإضافة المكررة في فترة قصيرة.'
                         : 'Loya provides advanced cashier security preventing duplicate point allocation or unauthorized stamping.'}
                     </p>
                   </div>
@@ -687,7 +693,7 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                   <div className="pt-2 border-t border-slate-100 text-[11px] text-[#64748B] space-y-1.5">
                     <div className="flex items-center gap-1.5 text-[#1E293B] font-semibold">
                       <Check className="w-3.5 h-3.5 text-[#0D9488]" />
-                      <span>{lang === 'ar' ? 'حظر المسح المكرر لنفس العميل خلال ٦٠ ثانية' : 'Rate limit: Block duplicate scans within 60s'}</span>
+                      <span>{lang === 'ar' ? 'حظر المسح المكرر لنفس العميل خلال 60 ثانية' : 'Rate limit: Block duplicate scans within 60s'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#1E293B] font-semibold">
                       <Check className="w-3.5 h-3.5 text-[#0D9488]" />

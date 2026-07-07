@@ -72,7 +72,7 @@ export const AuthView: React.FC<{ onLoginSuccess: () => void }> = ({ onLoginSucc
             <Award className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#1E293B]">
-            {lang === 'ar' ? 'نقاطي لمنشآت الأعمال' : 'Loya Business Portal'}
+            {lang === 'ar' ? 'loya لمنشآت الأعمال' : 'Loya Business Portal'}
           </h1>
           <p className="text-xs text-[#64748B] max-w-xs mx-auto leading-relaxed">
             {isLogin
@@ -243,7 +243,7 @@ export const AuthView: React.FC<{ onLoginSuccess: () => void }> = ({ onLoginSucc
         <div className="text-center pt-1">
           <span className="text-[10px] text-[#64748B] font-medium">
             {lang === 'ar'
-              ? 'بالدخول أنت توافق على شروط الخدمة وسياسة الخصوصية لمنصة نقاطي'
+              ? 'بالدخول أنت توافق على شروط الخدمة وسياسة الخصوصية لمنصة loya'
               : 'By entering, you agree to Loya Terms of Service & Privacy Policy'}
           </span>
         </div>
@@ -320,7 +320,7 @@ export const AuthView: React.FC<{ onLoginSuccess: () => void }> = ({ onLoginSucc
                 <input
                   type="text"
                   required
-                  placeholder="NQT-XXXXXX"
+                  placeholder="LYA-XXXXXX"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-sm font-mono text-center tracking-widest uppercase outline-none focus:ring-2 focus:ring-purple-600"

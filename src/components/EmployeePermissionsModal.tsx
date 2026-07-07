@@ -106,7 +106,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
 
             {employee.isLocked && (
               <div className="p-2.5 rounded-xl bg-rose-100 text-rose-800 text-xs font-bold flex items-center justify-between">
-                <span>{lang === 'ar' ? '⚠️ تم قفل الحساب لتجاوز ٥ محاولات خاطئة.' : '⚠️ Account locked due to 5 failed login attempts.'}</span>
+                <span>{lang === 'ar' ? '⚠️ تم قفل الحساب لتجاوز 5 محاولات خاطئة.' : '⚠️ Account locked due to 5 failed login attempts.'}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -126,7 +126,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
                 type="button"
                 onClick={() => {
                   const msg = lang === 'ar'
-                    ? `مرحباً بك في نظام نقاطي!\nبيانات دخولك لمنشأة الكاشير:\nرقم الجوال: ${employee.phone || ''}\nكود الدخول: ${employee.authCode || 'EMP-849201'}\nللدخول: https://app.niqati.com/staff-login`
+                    ? `مرحباً بك في نظام loya!\nبيانات دخولك لمنشأة الكاشير:\nرقم الجوال: ${employee.phone || ''}\nكود الدخول: ${employee.authCode || 'EMP-849201'}\nللدخول: https://app.loya.com/staff-login`
                     : `Welcome to Loya POS!\nYour Staff Login:\nPhone: ${employee.phone || ''}\nCode: ${employee.authCode || 'EMP-849201'}`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
                 }}
@@ -184,7 +184,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
           <div className="space-y-3">
             <h4 className="font-bold text-xs sm:text-sm text-[#1E293B] flex items-center gap-1.5">
               <Sliders className="w-4 h-4 text-[#0D9488]" />
-              <span>{lang === 'ar' ? 'صلاحيات الموظف التفصيلية (٦ صلاحيات أساسية)' : 'Granular 6-Flag Permission Toggles'}</span>
+              <span>{lang === 'ar' ? 'صلاحيات الموظف التفصيلية (6 صلاحيات أساسية)' : 'Granular 6-Flag Permission Toggles'}</span>
             </h4>
 
             {/* Flag 1 */}
@@ -194,7 +194,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '١. مسح باركود بطاقة العميل وإضافة النقاط / الطوابع' : '1. Scan pass barcodes & award loyalty points'}
+                  {lang === 'ar' ? '1. مسح باركود بطاقة العميل وإضافة النقاط / الطوابع' : '1. Scan pass barcodes & award loyalty points'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'يسمح للموظف بتسجيل المشتريات اليومية ومنح المكافآت' : 'Allow awarding stamps on customer purchases'}
@@ -216,7 +216,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '٢. استبدال المكافآت وخصم النقاط من رصيد العميل' : '2. Redeem customer rewards & deduct points'}
+                  {lang === 'ar' ? '2. استبدال المكافآت وخصم النقاط من رصيد العميل' : '2. Redeem customer rewards & deduct points'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'يسمح بتقديم الوجبات المجانية والخصومات مقابل النقاط' : 'Allow redeeming vouchers or free items'}
@@ -238,7 +238,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '٣. الاطلاع على تقارير الأداء المالي وإحصائيات الزيارات' : '3. View store financial reports & analytics'}
+                  {lang === 'ar' ? '3. الاطلاع على تقارير الأداء المالي وإحصائيات الزيارات' : '3. View store financial reports & analytics'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'الوصول للرسوم البيانية ومعدل عائد الولاء للمنشأة' : 'Access revenue impact and visit charts'}
@@ -260,7 +260,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '٤. تصميم وإنشاء بطاقات ولاء جديدة أو تعديل ألوانها' : '4. Design & configure Apple/Google wallet passes'}
+                  {lang === 'ar' ? '4. تصميم وإنشاء بطاقات ولاء جديدة أو تعديل ألوانها' : '4. Design & configure Apple/Google wallet passes'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'تعديل سياسات النقاط والشعار وقواعد المكافأة' : 'Create or edit card rules and design'}
@@ -282,7 +282,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '٥. إدارة فريق الكاشير وتوليد أكواد الانضمام للموظفين' : '5. Manage team accounts & branch permissions'}
+                  {lang === 'ar' ? '5. إدارة فريق الكاشير وتوليد أكواد الانضمام للموظفين' : '5. Manage team accounts & branch permissions'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'إضافة أو إيقاف موظفين جدد في الفرع' : 'Invite cashiers or edit account roles'}
@@ -304,7 +304,7 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '٦. إرسال وبث حملات الإشعارات لشاشات قفل المحافظ الذكية' : '6. Broadcast push campaigns to lockscreens'}
+                  {lang === 'ar' ? '6. إرسال وبث حملات الإشعارات لشاشات قفل المحافظ الذكية' : '6. Broadcast push campaigns to lockscreens'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
                   {lang === 'ar' ? 'إرسال التنبيهات والعروض الترويجية الفورية للعملاء' : 'Execute push promotions and updates'}

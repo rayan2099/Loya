@@ -91,7 +91,7 @@ export const WalletCardPreview: React.FC<WalletCardPreviewProps> = ({
                 {card.bannerTitle || card.description}
               </h4>
               <p className="text-[11px] sm:text-xs opacity-85 mt-1 truncate">
-                {card.bannerSubtext || 'بواسطة نقاطي للأعمال'}
+                {card.bannerSubtext || 'بواسطة loya للأعمال'}
               </p>
             </div>
 
@@ -157,9 +157,9 @@ export const WalletCardPreview: React.FC<WalletCardPreviewProps> = ({
                 <span className="opacity-75 shrink-0">نوع الاحتساب:</span>
                 <span className="font-bold text-right truncate">
                   {card.ruleType === 'points_per_riyal'
-                    ? `${card.pointsPerUnit} نقطة لكل ١ ريال`
+                    ? `${card.pointsPerUnit} نقطة لكل 1 ريال`
                     : card.ruleType === 'stamp_buy_5'
-                    ? 'اشتر ٥ والسادس مجاناً'
+                    ? 'اشتر 5 والسادس مجاناً'
                     : 'نقطة عند كل زيارة'}
                 </span>
               </div>

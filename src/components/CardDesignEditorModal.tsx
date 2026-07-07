@@ -11,7 +11,7 @@ interface CardDesignEditorModalProps {
 }
 
 const PRESET_COLORS = [
-  { nameAr: 'برتقالي نقاطي', nameEn: 'Loya Orange', hex: '#FF6B35' },
+  { nameAr: 'برتقالي loya', nameEn: 'Loya Orange', hex: '#FF6B35' },
   { nameAr: 'أزرق ملكي', nameEn: 'Royal Blue', hex: '#3B82F6' },
   { nameAr: 'أخضر زمردي', nameEn: 'Emerald Green', hex: '#10B981' },
   { nameAr: 'بنفسجي فاخر', nameEn: 'Luxury Purple', hex: '#8B5CF6' },
@@ -26,7 +26,7 @@ export const CardDesignEditorModal: React.FC<CardDesignEditorModalProps> = ({ ca
   const [color, setColor] = useState(card.color || '#FF6B35');
   const [textColor, setTextColor] = useState<'#FFFFFF' | '#000000'>(card.textColor || '#FFFFFF');
   const [bannerTitle, setBannerTitle] = useState(card.bannerTitle || (lang === 'ar' ? 'جمّع نقاطك واكسب مكافآت' : 'Collect Points & Earn Rewards'));
-  const [bannerSubtext, setBannerSubtext] = useState(card.bannerSubtext || (lang === 'ar' ? 'بواسطة نقاطي' : 'Powered by Loya'));
+  const [bannerSubtext, setBannerSubtext] = useState(card.bannerSubtext || (lang === 'ar' ? 'بواسطة loya' : 'Powered by Loya'));
   const [showFreeDesign, setShowFreeDesign] = useState(false);
 
   const updatedCard: LoyaltyCard = {

@@ -54,7 +54,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
           </div>
 
           <h3 className="font-black text-xl sm:text-2xl tracking-tight">
-            {lang === 'ar' ? 'ترقية حساب منشأتك إلى باقة نقاطي برو 🚀' : 'Upgrade to Loya Pro Unlimited Plan 🚀'}
+            {lang === 'ar' ? 'ترقية حساب منشأتك إلى باقة loya برو 🚀' : 'Upgrade to Loya Pro Unlimited Plan 🚀'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-200 mt-1">
             {lang === 'ar'
@@ -77,8 +77,8 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
                     : 'text-[#64748B] hover:text-[#1E293B]'
                 }`}
               >
-                <span>{lang === 'ar' ? 'اشتراك سنوي (وفر ٢٠٪)' : 'Annual (Save 20%)'}</span>
-                <span className="bg-amber-400 text-slate-900 text-[10px] px-1.5 py-0.2 rounded-md font-extrabold">١٩٩ ر.س/شهر</span>
+                <span>{lang === 'ar' ? 'اشتراك سنوي (وفر 20٪)' : 'Annual (Save 20%)'}</span>
+                <span className="bg-amber-400 text-slate-900 text-[10px] px-1.5 py-0.2 rounded-md font-extrabold">199 ر.س/شهر</span>
               </button>
 
               <button
@@ -91,7 +91,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
                 }`}
               >
                 <span>{lang === 'ar' ? 'اشتراك شهري مرن' : 'Monthly Flexible'}</span>
-                <span className="text-[10px] font-bold opacity-80">٢٤٩ ر.س/شهر</span>
+                <span className="text-[10px] font-bold opacity-80">249 ر.س/شهر</span>
               </button>
             </div>
           </div>
@@ -110,7 +110,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
                   <CreditCard className="w-4 h-4 text-[#0D9488]" />
                   <span>{lang === 'ar' ? 'عدد بطاقات الولاء المصممة للمتجر' : 'Active Loyalty Passes'}</span>
                 </div>
-                <div className="col-span-3 text-center font-semibold text-slate-500">{lang === 'ar' ? 'بطاقة واحدة فقط ١' : '1 Card Limit'}</div>
+                <div className="col-span-3 text-center font-semibold text-slate-500">{lang === 'ar' ? 'بطاقة واحدة فقط 1' : '1 Card Limit'}</div>
                 <div className="col-span-3 text-center font-black text-[#0D9488] bg-[#F0FDFA] py-1 rounded-lg">
                   {lang === 'ar' ? 'غير محدود ♾️' : 'Unlimited Cards ♾️'}
                 </div>
@@ -121,7 +121,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
                   <Users className="w-4 h-4 text-[#0D9488]" />
                   <span>{lang === 'ar' ? 'حصة العملاء المنضمين لمحفظة Apple & Google' : 'Enrolled Customer Passes'}</span>
                 </div>
-                <div className="col-span-3 text-center font-semibold text-slate-500">{lang === 'ar' ? 'بحد أقصى ٥٠ عميل' : 'Max 50 Customers'}</div>
+                <div className="col-span-3 text-center font-semibold text-slate-500">{lang === 'ar' ? 'بحد أقصى 50 عميل' : 'Max 50 Customers'}</div>
                 <div className="col-span-3 text-center font-black text-[#0D9488] bg-[#F0FDFA] py-1 rounded-lg">
                   {lang === 'ar' ? 'غير محدود ♾️' : 'Unlimited Passes ♾️'}
                 </div>
@@ -155,7 +155,7 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
           {upgraded ? (
             <div className="p-4 rounded-2xl bg-[#DCFCE7] text-[#16A34A] font-black text-base text-center flex items-center justify-center gap-2 shadow-sm">
               <Check className="w-6 h-6" />
-              <span>{lang === 'ar' ? 'تم تفعيل باقة نقاطي برو بنجاح! مرحباً بك في العالم غير المحدود 🎉' : 'Successfully Upgraded to Loya Pro! Welcome aboard 🎉'}</span>
+              <span>{lang === 'ar' ? 'تم تفعيل باقة loya برو بنجاح! مرحباً بك في العالم غير المحدود 🎉' : 'Successfully Upgraded to Loya Pro! Welcome aboard 🎉'}</span>
             </div>
           ) : (
             <div className="space-y-2">
@@ -167,13 +167,13 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
                 <Sparkles className="w-5 h-5 animate-spin" />
                 <span>
                   {lang === 'ar'
-                    ? `تفعيل الاشتراك في باقة برو (${billingCycle === 'annual' ? '١٩٩ ر.س/شهر' : '٢٤٩ ر.س/شهر'}) 🚀`
+                    ? `تفعيل الاشتراك في باقة برو (${billingCycle === 'annual' ? '199 ر.س/شهر' : '249 ر.س/شهر'}) 🚀`
                     : `Activate Pro Plan (${billingCycle === 'annual' ? '199 SAR/mo' : '249 SAR/mo'}) 🚀`}
                 </span>
               </button>
               <p className="text-[11px] text-[#64748B] text-center font-semibold">
                 {lang === 'ar'
-                  ? 'ضمان استرداد الأموال خلال ١٤ يوماً • إلغاء مرن في أي وقت بضغطة زر'
+                  ? 'ضمان استرداد الأموال خلال 14 يوماً • إلغاء مرن في أي وقت بضغطة زر'
                   : '14-day money back guarantee • Cancel anytime with zero fees'}
               </p>
             </div>

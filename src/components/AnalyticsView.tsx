@@ -8,13 +8,13 @@ export const AnalyticsView: React.FC = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const weeklyData = [
-    { dayAr: 'السبت', dayEn: 'Sat', val: 45, label: '+٤٥٠ نقطة' },
-    { dayAr: 'الأحد', dayEn: 'Sun', val: 68, label: '+٦٨٠ نقطة' },
-    { dayAr: 'الإثنين', dayEn: 'Mon', val: 52, label: '+٥٢٠ نقطة' },
-    { dayAr: 'الثلاثاء', dayEn: 'Tue', val: 82, label: '+٨٢٠ نقطة' },
-    { dayAr: 'الأربعاء', dayEn: 'Wed', val: 65, label: '+٦٥٠ نقطة' },
-    { dayAr: 'الخميس', dayEn: 'Thu', val: 95, label: '+٩٥٠ نقطة الذروة' },
-    { dayAr: 'الجمعة', dayEn: 'Fri', val: 88, label: '+٨٨٠ نقطة' },
+    { dayAr: 'السبت', dayEn: 'Sat', val: 45, label: '+450 نقطة' },
+    { dayAr: 'الأحد', dayEn: 'Sun', val: 68, label: '+680 نقطة' },
+    { dayAr: 'الإثنين', dayEn: 'Mon', val: 52, label: '+520 نقطة' },
+    { dayAr: 'الثلاثاء', dayEn: 'Tue', val: 82, label: '+820 نقطة' },
+    { dayAr: 'الأربعاء', dayEn: 'Wed', val: 65, label: '+650 نقطة' },
+    { dayAr: 'الخميس', dayEn: 'Thu', val: 95, label: '+950 نقطة الذروة' },
+    { dayAr: 'الجمعة', dayEn: 'Fri', val: 88, label: '+880 نقطة' },
   ];
 
   return (
@@ -59,7 +59,7 @@ export const AnalyticsView: React.FC = () => {
               </h3>
               <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
                 {lang === 'ar'
-                  ? 'رصد معدلات العائد المالي من المحافظ، ساعات الذروة، تقارير أداء الكاشير، ونمو الزيارات اليومية متاحة حصرياً لباقة نقاطي برو.'
+                  ? 'رصد معدلات العائد المالي من المحافظ، ساعات الذروة، تقارير أداء الكاشير، ونمو الزيارات اليومية متاحة حصرياً لباقة loya برو.'
                   : 'Get deep revenue insights, cashier scan logs, customer lifetime value charts, and retention trends with Loya Pro Unlimited.'}
               </p>
             </div>
@@ -169,7 +169,7 @@ export const AnalyticsView: React.FC = () => {
               <div>
                 <span className="text-[11px] text-[#64748B] font-semibold uppercase tracking-wider">{lang === 'ar' ? 'يوم الذروة الأسبوعي' : 'Weekly Peak Day'}</span>
                 <h4 className="font-bold text-base text-[#1E293B]">{lang === 'ar' ? 'يوم الخميس (مساءً)' : 'Thursday (Evening)'}</h4>
-                <p className="text-xs text-[#64748B] mt-0.5">{lang === 'ar' ? 'يمثل ٣٨٪ من إجمالي عمليات مسح الباركود وصرف المكافآت' : 'Accounts for 38% of total scans and redemptions'}</p>
+                <p className="text-xs text-[#64748B] mt-0.5">{lang === 'ar' ? 'يمثل 38٪ من إجمالي عمليات مسح الباركود وصرف المكافآت' : 'Accounts for 38% of total scans and redemptions'}</p>
               </div>
             </div>
 
@@ -179,8 +179,8 @@ export const AnalyticsView: React.FC = () => {
               </div>
               <div>
                 <span className="text-[11px] text-[#64748B] font-semibold uppercase tracking-wider">{lang === 'ar' ? 'ساعات النشاط القصوى' : 'Peak Activity Hours'}</span>
-                <h4 className="font-bold text-base text-[#1E293B]">{lang === 'ar' ? '٦:٠٠ م — ١٠:٠٠ م' : '6:00 PM — 10:00 PM'}</h4>
-                <p className="text-xs text-[#64748B] mt-0.5">{lang === 'ar' ? 'يُوصى بإرسال إشعارات الحملات الترويجية الساعة ٥:٠٠ مساءً' : 'Recommended push campaign time: 5:00 PM'}</p>
+                <h4 className="font-bold text-base text-[#1E293B]">{lang === 'ar' ? '6:00 م — 10:00 م' : '6:00 PM — 10:00 PM'}</h4>
+                <p className="text-xs text-[#64748B] mt-0.5">{lang === 'ar' ? 'يُوصى بإرسال إشعارات الحملات الترويجية الساعة 5:00 مساءً' : 'Recommended push campaign time: 5:00 PM'}</p>
               </div>
             </div>
           </div>

@@ -101,7 +101,7 @@ export const CardDetailsModal: React.FC<CardDetailsModalProps> = ({ card, onClos
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">{lang === 'ar' ? 'معدل الاكتساب' : 'Earning Rate'}</span>
                   <span className="text-xs sm:text-sm font-black text-[#0D9488] mt-1 block">
-                    {card.ruleType === 'stamp_buy_5' ? (lang === 'ar' ? 'ختم لكل منتج' : '1 Stamp / Item') : (lang === 'ar' ? '١ نقطة / ١ ريال' : '1 Pt / 1 SAR')}
+                    {card.ruleType === 'stamp_buy_5' ? (lang === 'ar' ? 'ختم لكل منتج' : '1 Stamp / Item') : (lang === 'ar' ? '1 نقطة / 1 ريال' : '1 Pt / 1 SAR')}
                   </span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">

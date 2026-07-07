@@ -37,7 +37,7 @@ export const FreeCardDesignModal: React.FC<FreeCardDesignModalProps> = ({ onClos
                 {lang === 'ar' ? 'نصمم لك البطاقة مجاناً! 🎨✨' : 'Free Custom Design Service 🎨✨'}
               </h3>
               <p className="text-xs text-[#64748B]">
-                {lang === 'ar' ? 'فريق تصميم نقاطي يجهز لك بطاقة احترافية' : 'Our team will craft your pass for free'}
+                {lang === 'ar' ? 'فريق تصميم loya يجهز لك بطاقة احترافية' : 'Our team will craft your pass for free'}
               </p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export const FreeCardDesignModal: React.FC<FreeCardDesignModalProps> = ({ onClos
             </h4>
             <p className="text-xs text-[#64748B] max-w-xs mx-auto leading-relaxed">
               {lang === 'ar' ? (
-                <>سيتواصل معك مصمم نقاطي عبر الواتساب على الرقم <strong dir="ltr">{phone}</strong> خلال أقل من ساعتين مع نماذج مخصصة لمنشأتك.</>
+                <>سيتواصل معك مصمم loya عبر الواتساب على الرقم <strong dir="ltr">{phone}</strong> خلال أقل من ساعتين مع نماذج مخصصة لمنشأتك.</>
               ) : (
                 <>Our design team will contact you via WhatsApp at <strong dir="ltr">{phone}</strong> within 2 hours with tailored wallet mockups.</>
               )}

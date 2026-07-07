@@ -23,7 +23,7 @@ const TEMPLATES = [
   },
   {
     id: 't3',
-    titleAr: '🎁 خصم ١٠٪ خاص بعملاء المحفظة',
+    titleAr: '🎁 خصم 10٪ خاص بعملاء المحفظة',
     bodyAr: 'استمتع بخصم فوري عند إبراز بطاقة ولاء متجرنا من محفظة جوالك.',
     titleEn: '🎁 10% Exclusive Passholder Discount',
     bodyEn: 'Enjoy instant savings when presenting your digital wallet pass.',
@@ -38,7 +38,7 @@ const TEMPLATES = [
   {
     id: 't5',
     titleAr: '🔥 عرض الغداء السريع المحدود',
-    bodyAr: 'خصم ٢٠٪ على وجبات الغداء بين الساعة ١ و ٤ مساءً لعملاء نقاطي.',
+    bodyAr: 'خصم 20٪ على وجبات الغداء بين الساعة 1 و 4 مساءً لعملاء loya.',
     titleEn: '🔥 Flash Lunch Hour Special Deal',
     bodyEn: 'Save 20% on all lunch combos between 1 PM and 4 PM today.',
   },
@@ -52,7 +52,7 @@ const TEMPLATES = [
   {
     id: 't7',
     titleAr: '✨ وصول تشكيلتنا الجديدة حصرياً',
-    bodyAr: 'تصفح أحدث المنتجات واكسب ٣ أضعاف النقاط عند شرائك اليوم.',
+    bodyAr: 'تصفح أحدث المنتجات واكسب 3 أضعاف النقاط عند شرائك اليوم.',
     titleEn: '✨ Exclusive New Arrival Preview',
     bodyEn: 'Be the first to explore new arrivals and earn 3x points on your visit.',
   },
@@ -229,7 +229,7 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
               {step === 1 && (
                 <div className="space-y-4 animate-in fade-in">
                   <h4 className="font-bold text-sm text-[#1E293B]">
-                    {lang === 'ar' ? 'الخطوة ١: حدد شريحة العملاء المستهدفة في هذه الحملة' : 'Step 1: Select Target Audience Segment'}
+                    {lang === 'ar' ? 'الخطوة 1: حدد شريحة العملاء المستهدفة في هذه الحملة' : 'Step 1: Select Target Audience Segment'}
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -266,7 +266,7 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
                         <input type="radio" checked={audience === 'inactive'} readOnly className="text-[#0D9488]" />
                       </div>
                       <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                        {lang === 'ar' ? 'العملاء غير النشطين (+٣٠ يوم)' : 'Inactive Lookback (>30 days)'}
+                        {lang === 'ar' ? 'العملاء غير النشطين (+30 يوم)' : 'Inactive Lookback (>30 days)'}
                       </span>
                       <span className="text-[11px] text-[#64748B] mt-1 block font-semibold">
                         {lang === 'ar' ? `استرجاع العملاء الغائبين (${Math.max(1, Math.floor(customers.length * 0.4))} عميل)` : `Re-engage dormant users`}
@@ -318,10 +318,10 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
                 <div className="space-y-5 animate-in fade-in">
                   <div>
                     <h4 className="font-bold text-sm text-[#1E293B] mb-1">
-                      {lang === 'ar' ? 'الخطوة ٢: اختر قالباً جاهزاً أو اكتب رسالتك المخصصة' : 'Step 2: Choose Ready Template or Custom Message'}
+                      {lang === 'ar' ? 'الخطوة 2: اختر قالباً جاهزاً أو اكتب رسالتك المخصصة' : 'Step 2: Choose Ready Template or Custom Message'}
                     </h4>
                     <p className="text-xs text-[#64748B]">
-                      {lang === 'ar' ? '٧ قوالب احترافية مجربة لتحقيق أعلى معدل تفاعل وزيارات للمتجر' : '7 high-converting bilingual marketing templates'}
+                      {lang === 'ar' ? '7 قوالب احترافية مجربة لتحقيق أعلى معدل تفاعل وزيارات للمتجر' : '7 high-converting bilingual marketing templates'}
                     </p>
                   </div>
 
@@ -385,7 +385,7 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
                 <div className="space-y-5 animate-in fade-in">
                   <div className="text-center">
                     <h4 className="font-bold text-sm text-[#1E293B]">
-                      {lang === 'ar' ? 'الخطوة ٣: معاينة شكل الإشعار على جوال العميل وإرسال البث' : 'Step 3: Lockscreen Preview & Confirm Broadcast'}
+                      {lang === 'ar' ? 'الخطوة 3: معاينة شكل الإشعار على جوال العميل وإرسال البث' : 'Step 3: Lockscreen Preview & Confirm Broadcast'}
                     </h4>
                     <p className="text-xs text-[#64748B]">
                       {lang === 'ar'
@@ -426,7 +426,7 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <p className="text-[11px] text-amber-800 font-semibold leading-relaxed">
                       {lang === 'ar'
-                        ? 'ملاحظة هامة لحماية حسابك: يحق للمنشأة إرسال حتى ١٠ حملات إشعار جماعية في الساعة لتجنب إزعاج العملاء وحفاظاً على معايير الجودة في محافظ Apple & Google الرسمية.'
+                        ? 'ملاحظة هامة لحماية حسابك: يحق للمنشأة إرسال حتى 10 حملات إشعار جماعية في الساعة لتجنب إزعاج العملاء وحفاظاً على معايير الجودة في محافظ Apple & Google الرسمية.'
                         : 'Rate Limit Footnote: Organizations are allotted up to 10 broadcast notifications per hour to preserve customer trust and comply with wallet standards.'}
                     </p>
                   </div>

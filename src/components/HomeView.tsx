@@ -64,7 +64,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
             {greeting}
           </span>
           <h2 className="text-lg sm:text-xl font-black tracking-tight">
-            {storeProfile?.name || (lang === 'ar' ? 'متجر نقاطي' : 'Loya Store')}
+            {storeProfile?.name || (lang === 'ar' ? 'متجر loya' : 'Loya Store')}
           </h2>
           <p className="text-xs text-slate-300 mt-1">
             {lang === 'ar'
@@ -100,7 +100,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
           </div>
           <div className="text-xl sm:text-2xl font-bold text-[#1E293B] leading-none">{customers.length}</div>
           <div className="text-[10px] sm:text-[11px] text-[#10B981] font-semibold mt-1.5 truncate">
-            {lang === 'ar' ? '↑ ١٢٪ مقارنة بالشهر السابق' : '↑ 12% vs last month'}
+            {lang === 'ar' ? '↑ 12٪ مقارنة بالشهر السابق' : '↑ 12% vs last month'}
           </div>
         </div>
 
@@ -123,7 +123,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-[#1E293B] leading-none">{totalPointsEarned.toLocaleString()}</div>
-          <div className="text-[10px] sm:text-[11px] text-[#10B981] font-semibold mt-1.5 truncate">{lang === 'ar' ? '↑ ٧٤٪ تم استبدالها لمكافآت' : '↑ 74% redeemed'}</div>
+          <div className="text-[10px] sm:text-[11px] text-[#10B981] font-semibold mt-1.5 truncate">{lang === 'ar' ? '↑ 74٪ تم استبدالها لمكافآت' : '↑ 74% redeemed'}</div>
         </div>
 
         <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm transition-all flex flex-col justify-between">
@@ -191,7 +191,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
               <span>{lang === 'ar' ? 'نصمم لك البطاقة مجاناً! 🎨✨' : 'Free Custom Pass Design Service'}</span>
             </h4>
             <p className="text-xs text-[#64748B] mt-0.5">
-              {lang === 'ar' ? 'فريق تصميم نقاطي يجهز لك بطاقة ولاء احترافية بشعارك وهويتك خلال ساعتين' : 'Our team crafts your custom wallet pass in under 2 hours'}
+              {lang === 'ar' ? 'فريق تصميم loya يجهز لك بطاقة ولاء احترافية بشعارك وهويتك خلال ساعتين' : 'Our team crafts your custom wallet pass in under 2 hours'}
             </p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
                     </div>
                     <div>
                       <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0D9488] border border-[#0D9488]/20">
-                        {card.ruleType === 'stamp_buy_5' ? (lang === 'ar' ? 'نظام طوابع (اشتر ٥)' : 'Stamps (Buy 5)') : (lang === 'ar' ? 'نقاط عند الشراء' : 'Points per Purchase')}
+                        {card.ruleType === 'stamp_buy_5' ? (lang === 'ar' ? 'نظام طوابع (اشتر 5)' : 'Stamps (Buy 5)') : (lang === 'ar' ? 'نقاط عند الشراء' : 'Points per Purchase')}
                       </span>
                       <h4 className="font-bold text-base text-[#1E293B] mt-1 group-hover/card:text-[#0D9488] transition-colors">{card.name}</h4>
                     </div>

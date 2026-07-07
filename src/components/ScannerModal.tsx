@@ -75,7 +75,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
             </div>
             <div>
               <h3 className="font-bold text-base flex items-center gap-2 text-[#1E293B]">
-                <span>{lang === 'ar' ? 'نقطة مسح الكاشير (POS Scanner)' : 'POS Instant Scanner'}</span>
+                <span>{lang === 'ar' ? 'ماسح الكاشير المباشر' : 'Live Cashier Scanner'}</span>
                 <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping" />
               </h3>
               <p className="text-xs text-[#64748B]">
@@ -147,7 +147,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                   </div>
                   <div>
                     <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full inline-block">
-                      ⚡ تم المسح بنجاح!
+                      ⚡ {lang === 'ar' ? 'تم التعرف على العميل' : 'Customer verified'}
                     </span>
                     <h4 className="font-extrabold text-lg text-white mt-1">{selectedCustomer.name}</h4>
                     <span className="text-xs text-gray-400 font-mono block" dir="ltr">
@@ -180,7 +180,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                   }`}
                 >
                   <PlusCircle className="w-4 h-4" />
-                  <span>{isStampCard ? 'إضافة طابع ختمي' : 'إضافة نقاط'}</span>
+                  <span>{isStampCard ? (lang === 'ar' ? 'إضافة طابع ختمي' : 'Add Stamp') : (lang === 'ar' ? 'إضافة نقاط' : 'Add Points')}</span>
                 </button>
 
                 <button
@@ -193,7 +193,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                   }`}
                 >
                   <Gift className="w-4 h-4" />
-                  <span>صرف مكافأة</span>
+                  <span>{lang === 'ar' ? 'صرف مكافأة' : 'Redeem Reward'}</span>
                 </button>
               </div>
             </div>
@@ -215,6 +215,11 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                   <span className="text-xs font-bold text-[#1E293B] block">
                     {lang === 'ar' ? 'إضافة سريعة بزر واحد (Quick Add):' : 'Quick Add Buttons:'}
                   </span>
+                  <div className="rounded-xl bg-white border border-[#E2E8F0] px-3 py-2 text-[11px] font-semibold text-[#64748B]">
+                    {lang === 'ar'
+                      ? `سيتم تسجيل العملية باسم الكاشير وإضافتها فوراً إلى رصيد ${selectedCustomer.name}.`
+                      : `This action is logged to the cashier session and updates ${selectedCustomer.name}'s balance instantly.`}
+                  </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     {(activeCard?.quickAddButtons || [10, 25, 50]).map((num) => (
@@ -226,7 +231,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                       >
                         <span>+{num}</span>
                         <span className="text-[10px] font-normal opacity-70">
-                          {isStampCard ? 'طابع' : 'نقطة'}
+                          {isStampCard ? (lang === 'ar' ? 'طابع' : 'stamp') : (lang === 'ar' ? 'نقطة' : 'points')}
                         </span>
                       </button>
                     ))}

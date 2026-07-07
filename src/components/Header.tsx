@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-[#E2E8F0] px-4 sm:px-6 py-3.5 shadow-sm">
-      <div className="max-w-xl mx-auto flex items-center justify-between">
+      <div className="max-w-xl xl:max-w-7xl mx-auto flex items-center justify-between">
         {/* Store Name & Greeting */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
           <div className="w-10 h-10 rounded-xl bg-[#0D9488] flex items-center justify-center shadow-sm shrink-0">

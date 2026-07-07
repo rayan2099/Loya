@@ -57,7 +57,7 @@ export const ManagementView: React.FC = () => {
 
   // Join code state
   const [joinCodeStatus, setJoinCodeStatus] = useState<'active' | 'paused'>('active');
-  const joinCode = 'NQT-894210';
+  const joinCode = 'LYA-894210';
   const [copiedCode, setCopiedCode] = useState(false);
   const [inviteRolePreset, setInviteRolePreset] = useState<Employee['role']>('كاشير');
 
@@ -71,10 +71,10 @@ export const ManagementView: React.FC = () => {
     const roleLabel = lang === 'ar' ? inviteRolePreset : inviteRolePreset === 'مدير فرع' ? 'Branch Manager' : inviteRolePreset === 'موظف' ? 'Staff' : 'Cashier';
     const shareText =
       lang === 'ar'
-        ? `مرحباً بك في فريق متجر ${storeProfile.name}! 🚀\nللانضمام كـ (${inviteRolePreset}):\n١- حمل تطبيق كاشير نقاطي: https://app.niqati.com/download\n٢- أدخل رمز الفرع للانضمام: ${joinCode}`
-        : `Welcome to ${storeProfile.name} team! 🚀\nTo join as (${roleLabel}):\n1- Download Loya Cashier app: https://app.niqati.com/download\n2- Enter branch join code: ${joinCode}`;
+        ? `مرحباً بك في فريق متجر ${storeProfile.name}! 🚀\nللانضمام كـ (${inviteRolePreset}):\n1- حمل تطبيق كاشير loya: https://app.loya.com/download\n2- أدخل رمز الفرع للانضمام: ${joinCode}`
+        : `Welcome to ${storeProfile.name} team! 🚀\nTo join as (${roleLabel}):\n1- Download Loya Cashier app: https://app.loya.com/download\n2- Enter branch join code: ${joinCode}`;
     if (navigator.share) {
-      navigator.share({ title: 'دعوة انضمام لكاشير نقاطي', text: shareText }).catch(() => {});
+      navigator.share({ title: 'دعوة انضمام لكاشير loya', text: shareText }).catch(() => {});
     } else {
       window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
     }
@@ -211,17 +211,17 @@ export const ManagementView: React.FC = () => {
             <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/10 text-center">
               <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 rounded-xl bg-white/5">
                 <Download className="w-4 h-4 text-amber-300 shrink-0" />
-                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? '١- تحميل التطبيق' : '1- Download App'}</span>
+                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? '1- تحميل التطبيق' : '1- Download App'}</span>
               </div>
               <div className="text-slate-500 font-bold">←</div>
               <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 rounded-xl bg-white/5">
                 <Key className="w-4 h-4 text-amber-300 shrink-0" />
-                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? `٢- إدخال الرمز (${joinCode})` : `2- Enter Code (${joinCode})`}</span>
+                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? `2- إدخال الرمز (${joinCode})` : `2- Enter Code (${joinCode})`}</span>
               </div>
               <div className="text-slate-500 font-bold">←</div>
               <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 rounded-xl bg-white/5">
                 <Camera className="w-4 h-4 text-amber-300 shrink-0" />
-                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? '٣- بدء المسح' : '3- Start Scanning'}</span>
+                <span className="text-[11px] font-bold text-slate-200">{lang === 'ar' ? '3- بدء المسح' : '3- Start Scanning'}</span>
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@ export const ManagementView: React.FC = () => {
                           onClick={() => approveEmployee(emp.id)}
                           className="px-4 py-1.5 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
                         >
-                          <span>{lang === 'ar' ? `قبول كموظف ${emp.role} ✅` : `Approve as ${emp.role} ✅`}</span>
+                          <span>{lang === 'ar' ? `قبول طلب الانضمام كـ ${emp.role} ✅` : `Approve as ${emp.role} ✅`}</span>
                         </button>
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export const ManagementView: React.FC = () => {
                             {emp.phone || '05XXXXXXXX'}
                           </span>
                           <span className="text-[10px] bg-amber-50 text-amber-900 border border-amber-200/80 font-mono font-bold px-1.5 py-0.5 rounded uppercase" dir="ltr">
-                            🔑 {emp.authCode || 'EMP-849201'}
+                            🔑 {(emp.authCode || 'EMP-849201').replace(/(.{4}).+(.{2})$/, '$1••••$2')}
                           </span>
                         </div>
                       </div>
@@ -467,7 +467,7 @@ export const ManagementView: React.FC = () => {
               <div className="space-y-3 text-xs">
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F8FAFC]">
                   <span className="text-[#64748B] font-semibold">{lang === 'ar' ? 'اسم المنشأة المسجل:' : 'Organization Name:'}</span>
-                  <span className="font-bold text-[#1E293B]">{storeProfile.name || 'مقهى ومحمصة نقاطي'}</span>
+                  <span className="font-bold text-[#1E293B]">{storeProfile.name || 'مقهى ومحمصة loya'}</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#F8FAFC]">
@@ -499,7 +499,7 @@ export const ManagementView: React.FC = () => {
                 </h4>
                 <p className="text-xs text-[#64748B] leading-relaxed">
                   {lang === 'ar'
-                    ? 'فريق نقاطي متاح للمساعدة في تصميم بطاقات الولاء وربط أجهزة الكاشير وتفعيل الحملات التسويقية.'
+                    ? 'فريق loya متاح للمساعدة في تصميم بطاقات الولاء وربط أجهزة الكاشير وتفعيل الحملات التسويقية.'
                     : 'Loya engineering team is available 24/7 to assist with wallet pass design and hardware configuration.'}
                 </p>
                 <a
@@ -507,7 +507,7 @@ export const ManagementView: React.FC = () => {
                   className="w-full py-2.5 rounded-xl bg-[#F0FDFA] hover:bg-[#CCFBF1] text-[#0D9488] font-bold text-xs flex items-center justify-center gap-2 transition-colors"
                 >
                   <PhoneCall className="w-4 h-4" />
-                  <span>{lang === 'ar' ? 'اتصل بخبير نقاطي المباشر: 0535110460' : 'Call Direct Hotline: 0535110460'}</span>
+                  <span>{lang === 'ar' ? 'اتصل بخبير loya المباشر: 0535110460' : 'Call Direct Hotline: 0535110460'}</span>
                 </a>
               </div>
 
@@ -639,8 +639,8 @@ export const ManagementView: React.FC = () => {
                 type="button"
                 onClick={() => {
                   const shareMsg = lang === 'ar'
-                    ? `مرحباً بك في فريق نقاطي!\nبيانات دخولك لمنشأة الكاشير:\nرقم الجوال: ${newlyCreatedEmp.phone}\nكود الدخول: ${newlyCreatedEmp.authCode}\nللدخول الفوري دون كلمة مرور: https://app.niqati.com/staff-login`
-                    : `Welcome to Loya POS!\nYour Staff Credentials:\nPhone: ${newlyCreatedEmp.phone}\nCode: ${newlyCreatedEmp.authCode}\nLogin: https://app.niqati.com/staff-login`;
+                    ? `مرحباً بك في فريق loya!\nبيانات دخولك لمنشأة الكاشير:\nرقم الجوال: ${newlyCreatedEmp.phone}\nكود الدخول: ${newlyCreatedEmp.authCode}\nللدخول الفوري دون كلمة مرور: https://app.loya.com/staff-login`
+                    : `Welcome to Loya POS!\nYour Staff Credentials:\nPhone: ${newlyCreatedEmp.phone}\nCode: ${newlyCreatedEmp.authCode}\nLogin: https://app.loya.com/staff-login`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(shareMsg)}`, '_blank');
                 }}
                 className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"

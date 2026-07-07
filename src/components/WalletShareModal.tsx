@@ -159,23 +159,23 @@ export const WalletShareModal: React.FC<WalletShareModalProps> = ({ card, onClos
           {/* 4-Step Explainer Replicating Section G */}
           <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#0D9488]/20 space-y-2">
             <h5 className="font-bold text-xs text-[#0D9488]">
-              {lang === 'ar' ? 'كيف تعمل البطاقة مع العميل؟ (٤ خطوات سهلة)' : 'How it works for your customer (4 steps)'}
+              {lang === 'ar' ? 'كيف تعمل البطاقة مع العميل؟ (4 خطوات سهلة)' : 'How it works for your customer (4 steps)'}
             </h5>
             <div className="grid grid-cols-2 gap-2 text-[11px] text-[#1E293B]">
               <div className="p-2 rounded-xl bg-white border border-[#E2E8F0]">
-                <span className="font-bold text-[#0D9488] block">١. مسح الكود</span>
+                <span className="font-bold text-[#0D9488] block">1. مسح الكود</span>
                 <span className="text-gray-600">{lang === 'ar' ? 'يمسح العميل الـ QR أو يفتح الرابط' : 'Scan QR or open pass link'}</span>
               </div>
               <div className="p-2 rounded-xl bg-white border border-[#E2E8F0]">
-                <span className="font-bold text-[#0D9488] block">٢. الإضافة للمحفظة</span>
+                <span className="font-bold text-[#0D9488] block">2. الإضافة للمحفظة</span>
                 <span className="text-gray-600">{lang === 'ar' ? 'يضغط حفظ في Apple / Google Wallet' : 'Tap Add to Apple/Google Wallet'}</span>
               </div>
               <div className="p-2 rounded-xl bg-white border border-[#E2E8F0]">
-                <span className="font-bold text-[#0D9488] block">٣. مسح الكاشير</span>
+                <span className="font-bold text-[#0D9488] block">3. مسح الكاشير</span>
                 <span className="text-gray-600">{lang === 'ar' ? 'يعرض البطاقة عند كل شراء لزيادة الرصيد' : 'Present barcode at checkout to earn'}</span>
               </div>
               <div className="p-2 rounded-xl bg-white border border-[#E2E8F0]">
-                <span className="font-bold text-[#0D9488] block">٤. استبدال المكافأة</span>
+                <span className="font-bold text-[#0D9488] block">4. استبدال المكافأة</span>
                 <span className="text-gray-600">{lang === 'ar' ? 'يصرف هديته بضغطة زر عند اكتمال النقاط' : 'Redeem reward instantly upon target'}</span>
               </div>
             </div>

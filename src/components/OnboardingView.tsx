@@ -181,7 +181,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
       renderVisual: () => (
         <div className="space-y-4 my-2 animate-in fade-in zoom-in-95 duration-300">
           <div className="text-right text-xs font-bold text-[#1E293B] mb-1">
-            {lang === 'ar' ? '٤ أنواع من البطاقات المتاحة:' : '4 Card Types Available:'}
+            {lang === 'ar' ? '4 أنواع من البطاقات المتاحة:' : '4 Card Types Available:'}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-100 flex flex-col items-center text-center shadow-sm hover:shadow transition-all">
@@ -209,7 +209,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
               <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-1.5">
                 <Gift className="w-4.5 h-4.5" />
               </div>
-              <h4 className="font-bold text-xs text-gray-900">{lang === 'ar' ? 'اشترى ٥' : 'Buy 5 Stamp'}</h4>
+              <h4 className="font-bold text-xs text-gray-900">{lang === 'ar' ? 'اشتر 5' : 'Buy 5 Stamp'}</h4>
               <p className="text-[10px] text-gray-500 mt-0.5">{lang === 'ar' ? 'السادس مجاناً — طابع ختمي' : '6th free stamp card'}</p>
             </div>
           </div>
@@ -220,7 +220,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                 <span>{lang === 'ar' ? 'قوالب جاهزة احترافية' : 'Ready Professional Templates'}</span>
               </h4>
-              <p className="text-[11px] text-white/80 mt-0.5">{lang === 'ar' ? '٥ قوالب ألوان وهوية مخصصة جاهزة للإطلاق الفوري' : '5 ready color templates for instant launch'}</p>
+              <p className="text-[11px] text-white/80 mt-0.5">{lang === 'ar' ? '5 قوالب ألوان وهوية مخصصة جاهزة للإطلاق الفوري' : '5 ready color templates for instant launch'}</p>
             </div>
           </div>
 
@@ -290,7 +290,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
           <div className="bg-[#1E293B] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-slate-700">
             <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              <span>{lang === 'ar' ? 'ماسح نقاطي المباشر' : 'Live POS Scanner'}</span>
+              <span>{lang === 'ar' ? 'ماسح loya المباشر' : 'Live Cashier Scanner'}</span>
             </div>
 
             <div className="flex flex-col items-center py-3">
@@ -298,7 +298,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <h4 className="font-extrabold text-base">{lang === 'ar' ? 'تم المسح بنجاح!' : 'Scanned Successfully!'}</h4>
-              <p className="text-xs text-gray-300 mt-0.5">{lang === 'ar' ? 'أحمد محمد — ٢٤٠ نقطة' : 'Ahmed Mohammed — 240 pts'}</p>
+              <p className="text-xs text-gray-300 mt-0.5">{lang === 'ar' ? 'أحمد محمد — 240 نقطة' : 'Ahmed Mohammed — 240 pts'}</p>
             </div>
           </div>
 
@@ -360,7 +360,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
         <div className="my-4 space-y-3 animate-in fade-in zoom-in-95 duration-300">
           <div className="flex justify-between items-center px-1">
             <span className="text-xs font-bold text-[#1E293B]">{lang === 'ar' ? 'فريق العمل' : 'Staff Team'}</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">{lang === 'ar' ? '٣ موظفين' : '3 Staff'}</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">{lang === 'ar' ? '3 موظفين' : '3 Staff'}</span>
           </div>
 
           <div className="space-y-2">
@@ -373,7 +373,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
                     <span>{lang === 'ar' ? 'كاشير' : 'Cashier'}</span>
                     <span>&bull;</span>
                     <span className="text-purple-700 font-bold bg-purple-100/60 px-1.5 py-0.5 rounded text-[10px]">
-                      {lang === 'ar' ? 'صلاحيات ٢/٦' : 'Perms 2/6'}
+                      {lang === 'ar' ? 'صلاحيات 2/6' : 'Perms 2/6'}
                     </span>
                   </div>
                 </div>
@@ -390,7 +390,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
                     <span>{lang === 'ar' ? 'مدير فرع' : 'Branch Mgr'}</span>
                     <span>&bull;</span>
                     <span className="text-emerald-700 font-bold bg-emerald-100/60 px-1.5 py-0.5 rounded text-[10px]">
-                      {lang === 'ar' ? 'صلاحيات ٦/٦' : 'Perms 6/6'}
+                      {lang === 'ar' ? 'صلاحيات 6/6' : 'Perms 6/6'}
                     </span>
                   </div>
                 </div>
@@ -431,17 +431,17 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
             <div className="grid grid-cols-3 gap-2">
               <div className="p-2.5 rounded-2xl bg-purple-50 border border-purple-100 text-center">
                 <TrendingUp className="w-4 h-4 text-purple-600 mx-auto mb-1" />
-                <div className="font-extrabold text-sm text-purple-900">{lang === 'ar' ? '٣.٢x' : '3.2x'}</div>
+                <div className="font-extrabold text-sm text-purple-900">{lang === 'ar' ? '3.2x' : '3.2x'}</div>
                 <div className="text-[10px] text-gray-600 font-semibold">{lang === 'ar' ? 'نمو شهري' : 'Monthly Growth'}</div>
               </div>
               <div className="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
                 <RefreshCw className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-                <div className="font-extrabold text-sm text-emerald-900">{lang === 'ar' ? '٪٨٩' : '89%'}</div>
+                <div className="font-extrabold text-sm text-emerald-900">{lang === 'ar' ? '٪89' : '89%'}</div>
                 <div className="text-[10px] text-gray-600 font-semibold">{lang === 'ar' ? 'معدل رجوع' : 'Return Rate'}</div>
               </div>
               <div className="p-2.5 rounded-2xl bg-orange-50 border border-orange-100 text-center">
                 <Users className="w-4 h-4 text-orange-600 mx-auto mb-1" />
-                <div className="font-extrabold text-sm text-orange-900">{lang === 'ar' ? '١٢٤٧' : '1247'}</div>
+                <div className="font-extrabold text-sm text-orange-900">{lang === 'ar' ? '1247' : '1247'}</div>
                 <div className="text-[10px] text-gray-600 font-semibold">{lang === 'ar' ? 'عميل نشط' : 'Active Users'}</div>
               </div>
             </div>
@@ -449,7 +449,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200 shadow-sm space-y-2">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-xs text-gray-900">{lang === 'ar' ? 'النقاط المضافة هذا الأسبوع' : 'Points Added This Week'}</span>
-                <span className="text-[11px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">{lang === 'ar' ? '+٢٣٪' : '+23%'}</span>
+                <span className="text-[11px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">{lang === 'ar' ? '+23٪' : '+23%'}</span>
               </div>
               <div className="flex items-end justify-between h-20 pt-2 px-1 gap-1.5">
                 {chartVals.map((val, idx) => (
@@ -469,7 +469,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
             <div className="grid grid-cols-3 gap-2 bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E2E8F0] text-center text-[10px]">
               <div>
                 <span className="text-[#64748B] block">{lang === 'ar' ? 'الإجمالي' : 'Total'}</span>
-                <strong className="text-[#1E293B] font-bold">{lang === 'ar' ? '٤٨٢٠' : '4,820'}</strong>
+                <strong className="text-[#1E293B] font-bold">{lang === 'ar' ? '4820' : '4,820'}</strong>
               </div>
               <div className="border-x border-slate-200 px-1">
                 <span className="text-[#64748B] block">{lang === 'ar' ? 'أعلى يوم' : 'Peak Day'}</span>
@@ -477,7 +477,7 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
               </div>
               <div>
                 <span className="text-[#64748B] block">{lang === 'ar' ? 'أوقات الذروة' : 'Peak Hours'}</span>
-                <strong className="text-[#1E293B] font-bold">{lang === 'ar' ? '٦ - ٨ م' : '6-8 PM'}</strong>
+                <strong className="text-[#1E293B] font-bold">{lang === 'ar' ? '6 - 8 م' : '6-8 PM'}</strong>
               </div>
             </div>
           </div>
@@ -502,10 +502,10 @@ export const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplet
           <div className="w-8 h-8 rounded-xl bg-[#0D9488] flex items-center justify-center shadow-sm">
             <Award className="w-5 h-5 text-white" />
           </div>
-          <span className="font-extrabold text-lg text-[#1E293B] tracking-tight">نقاطي</span>
+          <span className="font-extrabold text-lg text-[#1E293B] tracking-tight">loya</span>
         </div>
-        <div className="text-xs font-bold text-[#64748B] bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs">
-          {lang === 'ar' ? `${currentSlide + 1} / ${slides.length}` : `${currentSlide + 1}/${slides.length}`}
+        <div className="text-xs font-bold text-[#64748B] bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs" dir="ltr">
+          {`${currentSlide + 1} / ${slides.length}`}
         </div>
       </div>
 

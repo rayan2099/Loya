@@ -64,7 +64,7 @@ export const CustomersView: React.FC = () => {
           <button
             onClick={() => {
               if (storeProfile?.plan === 'free' && customers.length >= 50) {
-                setUpgradeReason(lang === 'ar' ? 'تم اكتمال حصة الـ ٥٠ عميل في الباقة المجانية' : 'Reached 50 customers limit on Free Plan');
+                setUpgradeReason(lang === 'ar' ? 'تم اكتمال حصة الـ 50 عميل في الباقة المجانية' : 'Reached 50 customers limit on Free Plan');
                 setShowUpgradeModal(true);
               } else {
                 setShowAddModal(true);
@@ -86,8 +86,8 @@ export const CustomersView: React.FC = () => {
             <div>
               <h4 className="font-bold text-xs sm:text-sm text-[#1E293B]">
                 {storeProfile?.plan === 'pro'
-                  ? (lang === 'ar' ? '🚀 باقة نقاطي برو (Pro Unlimited): حصة العملاء والبطاقات غير محدودة' : '🚀 Loya Pro Unlimited: Unlimited active customers & cards')
-                  : (lang === 'ar' ? `باقة نقاطي المجانية: تم استخدام ${quotaUsed} من أصل ${quotaLimit} عميل` : `Free Plan Quota: Used ${quotaUsed} of ${quotaLimit} available wallet passes`)}
+                  ? (lang === 'ar' ? '🚀 باقة loya برو (Pro Unlimited): حصة العملاء والبطاقات غير محدودة' : '🚀 Loya Pro Unlimited: Unlimited active customers & cards')
+                  : (lang === 'ar' ? `باقة loya المجانية: تم استخدام ${quotaUsed} من أصل ${quotaLimit} عميل` : `Free Plan Quota: Used ${quotaUsed} of ${quotaLimit} available wallet passes`)}
               </h4>
               <p className="text-[11px] text-[#64748B]">
                 {storeProfile?.plan === 'pro'
@@ -132,7 +132,7 @@ export const CustomersView: React.FC = () => {
           </div>
           <div>
             <h4 className="font-bold text-sm text-[#1E293B]">{lang === 'ar' ? 'أرسل إشعاراً لعملائك مباشرة في شاشة قفل المحفظة' : 'Send Push Notification to Apple & Google Wallet'}</h4>
-            <p className="text-xs text-[#64748B]">{lang === 'ar' ? 'معدل فتح الإشعارات عبر المحفظة يصل إلى ٩٢٪ مقارنة بالرسائل العادية' : '92% open rate natively on customer lock screens'}</p>
+            <p className="text-xs text-[#64748B]">{lang === 'ar' ? 'معدل فتح الإشعارات عبر المحفظة يصل إلى 92٪ مقارنة بالرسائل العادية' : '92% open rate natively on customer lock screens'}</p>
           </div>
         </div>
         <span className="bg-[#F1F5F9] text-[#1E293B] font-semibold text-xs px-3 py-1.5 rounded-xl border border-[#E2E8F0]">{lang === 'ar' ? 'بث فوري' : 'Live Broadcast'}</span>

@@ -93,7 +93,7 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'niqati_app_data_v1';
+const STORAGE_KEY = 'loya_app_data_v1';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [storeProfile, setStoreProfile] = useState<StoreProfile>(initialStoreProfile);
@@ -103,11 +103,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [campaigns, setCampaigns] = useState<PushCampaign[]>(initialCampaigns);
   const [activeTab, setActiveTab] = useState<NavTab>('home');
-  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+  const [lang, setLang] = useState<'ar' | 'en'>(() => {
+    const savedLang = localStorage.getItem('loya_lang');
+    return savedLang === 'en' ? 'en' : 'ar';
+  });
   const [showOnboarding, setShowOnboarding] = useState<boolean>(true);
   const [activeCardForPreview, setActiveCardForPreview] = useState<LoyaltyCard | null>(null);
   const [currentEmployeeSession, setCurrentEmployeeSession] = useState<Employee | null>(() => {
-    const saved = localStorage.getItem('niqati_emp_session');
+    const saved = localStorage.getItem('loya_emp_session');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -130,6 +133,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (parsed.employees) setEmployees(parsed.employees);
         if (parsed.transactions) setTransactions(parsed.transactions);
         if (parsed.campaigns) setCampaigns(parsed.campaigns);
+        if (parsed.lang === 'ar' || parsed.lang === 'en') setLang(parsed.lang);
         if (parsed.showOnboarding !== undefined) setShowOnboarding(parsed.showOnboarding);
       } catch (e) {
         console.error('Failed to parse local storage', e);
@@ -148,10 +152,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         employees,
         transactions,
         campaigns,
+        lang,
         showOnboarding,
       })
     );
-  }, [storeProfile, loyaltyCards, customers, employees, transactions, campaigns, showOnboarding]);
+    localStorage.setItem('loya_lang', lang);
+  }, [storeProfile, loyaltyCards, customers, employees, transactions, campaigns, lang, showOnboarding]);
 
   const addLoyaltyCard = (cardData: Omit<LoyaltyCard, 'id' | 'createdAt' | 'customersCount'>) => {
     const newCard: LoyaltyCard = {
@@ -325,7 +331,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
     if (currentEmployeeSession?.id === id) {
       setCurrentEmployeeSession(null);
-      localStorage.removeItem('niqati_emp_session');
+      localStorage.removeItem('loya_emp_session');
     }
     return targetEmp || employees.find((e) => e.id === id);
   };
@@ -371,7 +377,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, status } : e)));
     if (status === 'معلق' && currentEmployeeSession?.id === id) {
       setCurrentEmployeeSession(null);
-      localStorage.removeItem('niqati_emp_session');
+      localStorage.removeItem('loya_emp_session');
     }
   };
 
@@ -392,7 +398,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (emp.isLocked || (emp.failedLoginCount && emp.failedLoginCount >= 5)) {
       return {
         success: false,
-        error: lang === 'ar' ? 'تم قفل الحساب مؤقتاً لتجاوز ٥ محاولات خاطئة. يرجى مراجعة إدارة المنشأة لإصدار كود جديد.' : 'Account locked due to 5 failed code attempts. Contact admin to generate a new code.',
+        error: lang === 'ar' ? 'تم قفل الحساب مؤقتاً لتجاوز 5 محاولات خاطئة. يرجى مراجعة إدارة المنشأة لإصدار كود جديد.' : 'Account locked due to 5 failed code attempts. Contact admin to generate a new code.',
       };
     }
 
@@ -417,7 +423,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return {
         success: false,
         error: isNowLocked
-          ? (lang === 'ar' ? 'تم قفل الحساب لتجاوز ٥ محاولات خاطئة لكود الدخول.' : 'Account locked after 5 failed code attempts.')
+          ? (lang === 'ar' ? 'تم قفل الحساب لتجاوز 5 محاولات خاطئة لكود الدخول.' : 'Account locked after 5 failed code attempts.')
           : (lang === 'ar' ? `كود الدخول غير صحيح. (محاولة فاشلة رقم ${newFailCount} من 5)` : `Invalid access code. (Failed attempt ${newFailCount} of 5)`),
       };
     }
@@ -447,14 +453,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 
     setCurrentEmployeeSession(loggedInEmp);
-    localStorage.setItem('niqati_emp_session', JSON.stringify(loggedInEmp));
+    localStorage.setItem('loya_emp_session', JSON.stringify(loggedInEmp));
 
     return { success: true, employee: loggedInEmp };
   };
 
   const logoutEmployee = () => {
     setCurrentEmployeeSession(null);
-    localStorage.removeItem('niqati_emp_session');
+    localStorage.removeItem('loya_emp_session');
   };
 
   const updateEmployeePermissions = (id: string, permissions: Partial<Employee['permissions']>) => {
