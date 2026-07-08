@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
-import { Users, Search, Plus, Bell, Send, Check, Sparkles, Smartphone, Award, ShieldAlert } from 'lucide-react';
+import { Users, Search, Plus, Bell, Send, Check, Sparkles, Smartphone } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Customer } from '../types';
 import { CustomerDetailsModal } from './CustomerDetailsModal';
 import { NotificationComposerModal } from './NotificationComposerModal';
-import { ProUpgradeModal } from './ProUpgradeModal';
 
 export const CustomersView: React.FC = () => {
-  const { customers, loyaltyCards, sendPushNotification, addCustomer, lang, storeProfile } = useStore();
+  const { customers, loyaltyCards, addCustomer, lang } = useStore();
 
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [upgradeReason, setUpgradeReason] = useState<string>('');
 
   // New customer form
   const [newName, setNewName] = useState('');
@@ -33,10 +30,6 @@ export const CustomersView: React.FC = () => {
     setNewName('');
     setNewPhone('05');
   };
-
-  const quotaUsed = customers.length;
-  const quotaLimit = 50;
-  const quotaPercent = Math.min(100, Math.round((quotaUsed / quotaLimit) * 100));
 
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
@@ -58,18 +51,11 @@ export const CustomersView: React.FC = () => {
             className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-[#1E293B] hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all whitespace-nowrap"
           >
             <Bell className="w-4 h-4 animate-bounce shrink-0 text-[#0D9488]" />
-            <span>{lang === 'ar' ? 'بث الإشعارات (Push)' : 'Push Campaign'}</span>
+            <span>{lang === 'ar' ? 'ارسل اشعار للعملاء' : 'Send Customer Notification'}</span>
           </button>
 
           <button
-            onClick={() => {
-              if (storeProfile?.plan === 'free' && customers.length >= 50) {
-                setUpgradeReason(lang === 'ar' ? 'تم اكتمال حصة الـ 50 عميل في الباقة المجانية' : 'Reached 50 customers limit on Free Plan');
-                setShowUpgradeModal(true);
-              } else {
-                setShowAddModal(true);
-              }
-            }}
+            onClick={() => setShowAddModal(true)}
             className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all whitespace-nowrap"
           >
             <Plus className="w-4 h-4 shrink-0" />
@@ -78,47 +64,26 @@ export const CustomersView: React.FC = () => {
         </div>
       </div>
 
-      {/* Quota / Pro Plan Banner */}
-      <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm space-y-3 ${storeProfile?.plan === 'pro' ? 'bg-[#F0FDFA] border-[#0D9488]/30' : 'bg-[#F8FAFC] border-[#E2E8F0]'}`}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            {storeProfile?.plan === 'pro' ? <Sparkles className="w-5 h-5 text-[#0D9488] shrink-0" /> : <Award className="w-5 h-5 text-[#0D9488] shrink-0" />}
-            <div>
-              <h4 className="font-bold text-xs sm:text-sm text-[#1E293B]">
-                {storeProfile?.plan === 'pro'
-                  ? (lang === 'ar' ? '🚀 باقة loya برو (Pro Unlimited): حصة العملاء والبطاقات غير محدودة' : '🚀 Loya Pro Unlimited: Unlimited active customers & cards')
-                  : (lang === 'ar' ? `باقة loya المجانية: تم استخدام ${quotaUsed} من أصل ${quotaLimit} عميل` : `Free Plan Quota: Used ${quotaUsed} of ${quotaLimit} available wallet passes`)}
-              </h4>
-              <p className="text-[11px] text-[#64748B]">
-                {storeProfile?.plan === 'pro'
-                  ? (lang === 'ar' ? 'يمكنك التوسع بلا حدود وإرسال إشعارات بث جماعي لكافة شاشات قفل هواتف عملائك' : 'Unlimited pass issuance and VIP priority push broadcasting enabled')
-                  : (lang === 'ar' ? 'يمكنك الاستمرار في كسب العملاء وإصدار بطاقات آبل وجوجل والمكافآت مجاناً حتى اكتمال الحصة' : 'Continue issuing Apple & Google Wallet passes freely until quota limit')}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-            {storeProfile?.plan === 'free' && (
-              <button
-                onClick={() => setShowUpgradeModal(true)}
-                className="px-3 py-1 rounded-lg bg-[#0D9488] text-white font-bold text-xs shadow-sm hover:bg-[#0F766E] transition-colors"
-              >
-                {lang === 'ar' ? 'ترقية لـ Pro 🚀' : 'Upgrade Pro 🚀'}
-              </button>
-            )}
-            <span className="px-3 py-1 rounded-lg bg-[#F0FDFA] text-[#0D9488] font-bold text-xs border border-[#0D9488]/20">
-              {storeProfile?.plan === 'pro' ? `${customers.length} ♾️` : `${quotaUsed}/${quotaLimit}`} {lang === 'ar' ? 'عميل نشط' : 'enrolled'}
-            </span>
+      <div
+        onClick={() => setShowComposer(true)}
+        className="p-4 sm:p-5 rounded-2xl border border-[#0D9488]/30 bg-[#F0FDFA] shadow-sm cursor-pointer hover:bg-[#CCFBF1]/40 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+      >
+        <div className="flex items-center gap-2.5">
+          <Sparkles className="w-5 h-5 text-[#0D9488] shrink-0" />
+          <div>
+            <h4 className="font-bold text-xs sm:text-sm text-[#1E293B]">
+              {lang === 'ar' ? 'ارسل اشعار للعملاء' : 'Send a notification to customers'}
+            </h4>
+            <p className="text-[11px] text-[#64748B]">
+              {lang === 'ar'
+                ? 'اكتب رسالة قصيرة ووجّهها للعملاء عبر بطاقات المحفظة.'
+                : 'Write a short message and send it through customer wallet cards.'}
+            </p>
           </div>
         </div>
-
-        {storeProfile?.plan === 'free' && (
-          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-            <div
-              className="bg-[#0D9488] h-full transition-all duration-500 rounded-full"
-              style={{ width: `${quotaPercent}%` }}
-            />
-          </div>
-        )}
+        <span className="px-3 py-1 rounded-lg bg-white text-[#0D9488] font-bold text-xs border border-[#0D9488]/20">
+          {customers.length} {lang === 'ar' ? 'عميل نشط' : 'active customers'}
+        </span>
       </div>
 
       {/* Push Banner Promo */}
@@ -135,7 +100,7 @@ export const CustomersView: React.FC = () => {
             <p className="text-xs text-[#64748B]">{lang === 'ar' ? 'معدل فتح الإشعارات عبر المحفظة يصل إلى 92٪ مقارنة بالرسائل العادية' : '92% open rate natively on customer lock screens'}</p>
           </div>
         </div>
-        <span className="bg-[#F1F5F9] text-[#1E293B] font-semibold text-xs px-3 py-1.5 rounded-xl border border-[#E2E8F0]">{lang === 'ar' ? 'بث فوري' : 'Live Broadcast'}</span>
+        <span className="bg-[#F1F5F9] text-[#1E293B] font-semibold text-xs px-3 py-1.5 rounded-xl border border-[#E2E8F0]">{lang === 'ar' ? 'ارسل الآن' : 'Send now'}</span>
       </div>
 
       {/* Search Bar */}
@@ -273,10 +238,6 @@ export const CustomersView: React.FC = () => {
           card={loyaltyCards.find((c) => c.id === selectedCustomer.cardId) || loyaltyCards[0]}
           onClose={() => setSelectedCustomer(null)}
         />
-      )}
-
-      {showUpgradeModal && (
-        <ProUpgradeModal onClose={() => setShowUpgradeModal(false)} reason={upgradeReason} />
       )}
     </div>
   );
