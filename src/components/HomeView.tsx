@@ -167,8 +167,8 @@ export const HomeView: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanne
             className="p-4 sm:p-5 rounded-2xl bg-[#1E293B] text-white shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-between group"
           >
             <div className="text-right min-w-0 flex-1 pr-2">
-              <h4 className="font-bold text-sm truncate">{lang === 'ar' ? 'إرسال إشعار للمحفظة' : 'Send Wallet Push'}</h4>
-              <p className="text-[11px] text-white/80 mt-0.5 truncate">{lang === 'ar' ? 'تنبيه مباشر على شاشة قفل العميل' : 'Live lockscreen push'}</p>
+              <h4 className="font-bold text-sm truncate">{lang === 'ar' ? 'إرسال إشعار للعملاء' : 'Send Customer Notice'}</h4>
+              <p className="text-[11px] text-white/80 mt-0.5 truncate">{lang === 'ar' ? 'حملة محفوظة في سجل loya' : 'Saved campaign in Loya'}</p>
             </div>
             <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center transform group-hover:scale-110 transition-transform shrink-0">
               <Smartphone className="w-6 h-6 text-white" />

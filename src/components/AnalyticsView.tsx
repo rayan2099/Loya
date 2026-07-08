@@ -196,7 +196,11 @@ export const AnalyticsView: React.FC = () => {
                 <div key={tx.id} className="py-2.5 flex items-center justify-between text-xs">
                   <div>
                     <span className="font-semibold text-[#1E293B] block">{tx.customerName}</span>
-                    <span className="text-[10px] text-[#64748B]">{lang === 'ar' ? `بواسطة الكاشير: ${tx.cashierName} • ${tx.note}` : `By Cashier: ${tx.cashierName} • ${tx.note}`}</span>
+                    <span className="text-[10px] text-[#64748B]">
+                      {lang === 'ar'
+                        ? `بواسطة الكاشير: ${tx.cashierName}${tx.staffCode ? ` • ${tx.staffCode}` : ''} • ${tx.note}`
+                        : `By Cashier: ${tx.cashierName}${tx.staffCode ? ` • ${tx.staffCode}` : ''} • ${tx.note}`}
+                    </span>
                   </div>
                   <span
                     className={`font-bold px-2.5 py-1 rounded-xl ${

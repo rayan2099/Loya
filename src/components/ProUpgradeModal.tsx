@@ -141,11 +141,11 @@ export const ProUpgradeModal: React.FC<ProUpgradeModalProps> = ({ onClose, reaso
               <div className="grid grid-cols-12 p-3 items-center">
                 <div className="col-span-6 font-bold text-[#1E293B] flex items-center gap-2">
                   <Zap className="w-4 h-4 text-[#0D9488]" />
-                  <span>{lang === 'ar' ? 'بث الإشعارات الفورية لشاشات قفل الجوال' : 'Priority Lockscreen Push Campaigns'}</span>
+                  <span>{lang === 'ar' ? 'حملات إشعار العملاء' : 'Customer Notification Campaigns'}</span>
                 </div>
                 <div className="col-span-3 text-center font-semibold text-slate-500">{lang === 'ar' ? 'قياسي' : 'Standard'}</div>
                 <div className="col-span-3 text-center font-black text-[#0D9488] bg-[#F0FDFA] py-1 rounded-lg">
-                  ⚡ {lang === 'ar' ? 'بث فوري ذي أولوية' : 'High Priority VIP'}
+                  ⚡ {lang === 'ar' ? 'سجل حملات متقدم' : 'Advanced Campaign Log'}
                 </div>
               </div>
             </div>

@@ -104,12 +104,12 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
             </div>
             <div>
               <h3 className="font-bold text-base sm:text-lg text-[#1E293B]">
-                {lang === 'ar' ? 'مركز بث إشعارات المحافظ الذكية (Push Campaigns)' : 'Wallet Push Campaign Composer'}
+                {lang === 'ar' ? 'إرسال إشعار للعملاء' : 'Customer Notification Composer'}
               </h3>
               <p className="text-[11px] sm:text-xs text-[#64748B]">
                 {lang === 'ar'
-                  ? 'بث فوري على شاشات قفل Apple Wallet و Google Wallet لعملائك'
-                  : 'Live lockscreen notifications directly to customer Apple/Google Wallets'}
+                  ? 'جهّز حملة إشعار واحفظها في سجل الحملات. يتطلب البث عبر المحافظ الربط الرسمي.'
+                  : 'Prepare a customer notification and save it to campaign history. Wallet delivery requires official setup.'}
               </p>
             </div>
           </div>
@@ -389,8 +389,8 @@ export const NotificationComposerModal: React.FC<NotificationComposerModalProps>
                     </h4>
                     <p className="text-xs text-[#64748B]">
                       {lang === 'ar'
-                        ? `سيصل هذا التنبيه فوراً إلى شاشات قفل ${calculateTargetCount()} عميل عبر Apple & Google Wallet`
-                        : `Will immediately alert ${calculateTargetCount()} lockscreens via official wallet API`}
+                        ? `سيتم حفظ هذه الحملة لـ ${calculateTargetCount()} عميل داخل سجل loya`
+                        : `This campaign will be saved for ${calculateTargetCount()} customers inside Loya`}
                     </p>
                   </div>
 

@@ -87,7 +87,12 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
   const [newRewardIcon, setNewRewardIcon] = useState('🎁');
 
   // Security
-  const [cashierPinEnabled, setCashierPinEnabled] = useState(true);
+  const [cashierPinEnabled, setCashierPinEnabled] = useState(initialCard?.security?.cashierPinEnabled ?? true);
+  const [cashierPin, setCashierPin] = useState(initialCard?.security?.cashierPin || '1234');
+  const [duplicateScanWindowSeconds, setDuplicateScanWindowSeconds] = useState(
+    initialCard?.security?.duplicateScanWindowSeconds ?? 60
+  );
+  const [staffAuditEnabled, setStaffAuditEnabled] = useState(initialCard?.security?.staffAuditEnabled ?? true);
 
   // Quick buttons
   const [quickAddButtons, setQuickAddButtons] = useState<number[]>(
@@ -112,6 +117,12 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
     bannerTitle,
     bannerSubtext,
     backLinks: { phone, googleMaps, instagram, customNote },
+    security: {
+      cashierPinEnabled,
+      cashierPin: cashierPin.trim() || '1234',
+      duplicateScanWindowSeconds,
+      staffAuditEnabled,
+    },
     quickAddButtons,
     rewards,
     isActive: true,
@@ -690,14 +701,79 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                     </button>
                   </div>
 
+                  {cashierPinEnabled && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                      <label className="space-y-1.5">
+                        <span className="text-[11px] font-bold text-[#475569]">
+                          {lang === 'ar' ? 'رمز صرف المكافآت' : 'Reward redemption PIN'}
+                        </span>
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          value={cashierPin}
+                          onChange={(e) => setCashierPin(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs font-bold text-[#1E293B] outline-none focus:ring-2 focus:ring-[#0D9488]"
+                          placeholder="1234"
+                        />
+                      </label>
+                      <label className="space-y-1.5">
+                        <span className="text-[11px] font-bold text-[#475569]">
+                          {lang === 'ar' ? 'منع التكرار خلال (ثانية)' : 'Duplicate block window (seconds)'}
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          max={600}
+                          value={duplicateScanWindowSeconds}
+                          onChange={(e) => setDuplicateScanWindowSeconds(Math.max(0, Number(e.target.value)))}
+                          className="w-full px-3 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs font-bold text-[#1E293B] outline-none focus:ring-2 focus:ring-[#0D9488]"
+                        />
+                      </label>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setStaffAuditEnabled(!staffAuditEnabled)}
+                    className="w-full p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-start"
+                  >
+                    <div>
+                      <span className="block text-xs font-bold text-[#1E293B]">
+                        {lang === 'ar' ? 'تسجيل كود الموظف في كل عملية' : 'Staff audit log on every action'}
+                      </span>
+                      <span className="block text-[10px] text-[#64748B] mt-0.5">
+                        {lang === 'ar' ? 'يظهر اسم وكود الموظف في سجل النقاط والصرف.' : 'Staff name and code appear in points and redemption history.'}
+                      </span>
+                    </div>
+                    <span
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                        staffAuditEnabled ? 'bg-[#0D9488] border-[#0D9488] text-white' : 'border-slate-300 text-transparent'
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </span>
+                  </button>
+
                   <div className="pt-2 border-t border-slate-100 text-[11px] text-[#64748B] space-y-1.5">
                     <div className="flex items-center gap-1.5 text-[#1E293B] font-semibold">
                       <Check className="w-3.5 h-3.5 text-[#0D9488]" />
-                      <span>{lang === 'ar' ? 'حظر المسح المكرر لنفس العميل خلال 60 ثانية' : 'Rate limit: Block duplicate scans within 60s'}</span>
+                      <span>
+                        {lang === 'ar'
+                          ? `حظر المسح المكرر لنفس العميل خلال ${duplicateScanWindowSeconds} ثانية`
+                          : `Rate limit: block duplicate scans within ${duplicateScanWindowSeconds}s`}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#1E293B] font-semibold">
                       <Check className="w-3.5 h-3.5 text-[#0D9488]" />
-                      <span>{lang === 'ar' ? 'تسجيل كود الموظف مع كل عملية مسح أو إضافة' : 'Log staff ID with every scan or stamp'}</span>
+                      <span>
+                        {staffAuditEnabled
+                          ? lang === 'ar'
+                            ? 'تسجيل كود الموظف مع كل عملية مسح أو إضافة'
+                            : 'Log staff ID with every scan or stamp'
+                          : lang === 'ar'
+                          ? 'يمكنك تفعيل سجل الموظفين لاحقاً من هذه البطاقة'
+                          : 'Staff audit log can be enabled later for this card'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -717,7 +793,15 @@ export const CardWizardModal: React.FC<CardWizardModalProps> = ({ initialCard, o
                     </div>
                     <div className="flex items-center gap-2 text-[#0D9488] font-bold">
                       <Check className="w-4 h-4" />
-                      <span>{lang === 'ar' ? 'جاهز للمزامنة الفورية مع Apple & Google Wallet' : 'Ready for live Apple & Google Wallet sync'}</span>
+                      <span>
+                        {storeProfile.walletSyncStatus === 'connected'
+                          ? lang === 'ar'
+                            ? 'حالة ربط Apple & Google Wallet: متصل'
+                            : 'Apple & Google Wallet connection status: connected'
+                          : lang === 'ar'
+                          ? 'مزامنة المحافظ تحتاج ربط الحسابات الرسمية قبل الإطلاق'
+                          : 'Wallet sync requires official account connection before launch'}
+                      </span>
                     </div>
                   </div>
                 </div>

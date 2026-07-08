@@ -17,6 +17,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
   const [amount, setAmount] = useState<number>(isStamp ? 1 : 10);
   const [note, setNote] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const customerTransactions = transactions.filter((t) => t.customerId === customer.id);
 
@@ -29,10 +30,16 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
       ? (lang === 'ar' ? `إضافة يدوية من الإدارة (${amount})` : `Manual Addition (+${amount})`)
       : (lang === 'ar' ? `تعديل/خصم يدوي من الإدارة (${amount})` : `Manual Deduction (-${amount})`));
 
-    addPointsToCustomer(customer.id, adjustment, actionNote);
-    setShowSuccess(true);
-    setNote('');
-    setTimeout(() => setShowSuccess(false), 2500);
+    const result = addPointsToCustomer(customer.id, adjustment, actionNote);
+    if (result.success) {
+      setShowSuccess(true);
+      setErrorMsg(null);
+      setNote('');
+      setTimeout(() => setShowSuccess(false), 2500);
+    } else {
+      setErrorMsg(result.error || (lang === 'ar' ? 'تعذر حفظ التعديل.' : 'Could not save adjustment.'));
+      setTimeout(() => setErrorMsg(null), 3000);
+    }
   };
 
   return (
@@ -199,7 +206,14 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
               {showSuccess && (
                 <div className="p-2.5 rounded-xl bg-[#DCFCE7] text-[#16A34A] text-xs font-bold flex items-center justify-center gap-1.5 animate-in fade-in">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{lang === 'ar' ? 'تم تحديث رصيد العميل ومزامنة محفظته بنجاح!' : 'Customer ledger updated & synced to lockscreen!'}</span>
+                  <span>{lang === 'ar' ? 'تم تحديث رصيد العميل وتسجيل العملية بنجاح!' : 'Customer ledger updated and action logged successfully!'}</span>
+                </div>
+              )}
+
+              {errorMsg && (
+                <div className="p-2.5 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold flex items-center justify-center gap-1.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{errorMsg}</span>
                 </div>
               )}
             </form>
@@ -242,6 +256,12 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
                           <span>{tx.date}</span>
                           <span>&bull;</span>
                           <span>{lang === 'ar' ? `الكاشير: ${tx.cashierName}` : `Staff: ${tx.cashierName}`}</span>
+                          {tx.staffCode && (
+                            <>
+                              <span>&bull;</span>
+                              <span dir="ltr">{tx.staffCode}</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>

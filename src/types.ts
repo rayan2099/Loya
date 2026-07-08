@@ -26,6 +26,13 @@ export interface CardReward {
   icon: string;
 }
 
+export interface CardSecuritySettings {
+  cashierPinEnabled: boolean;
+  cashierPin: string;
+  duplicateScanWindowSeconds: number;
+  staffAuditEnabled: boolean;
+}
+
 export interface LoyaltyCard {
   id: string;
   name: string;
@@ -50,6 +57,7 @@ export interface LoyaltyCard {
     instagram?: string;
     customNote?: string;
   };
+  security: CardSecuritySettings;
   quickAddButtons: number[];
   rewards: CardReward[];
   isActive: boolean;
@@ -67,6 +75,9 @@ export interface Transaction {
   amount: number;
   note?: string;
   cashierName: string;
+  staffId?: string;
+  staffCode?: string;
+  createdAtMs?: number;
 }
 
 export interface Customer {

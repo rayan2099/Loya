@@ -304,10 +304,10 @@ export const EmployeePermissionsModal: React.FC<EmployeePermissionsModalProps> =
             >
               <div>
                 <span className="font-bold text-xs sm:text-sm text-[#1E293B] block">
-                  {lang === 'ar' ? '6. إرسال وبث حملات الإشعارات لشاشات قفل المحافظ الذكية' : '6. Broadcast push campaigns to lockscreens'}
+                  {lang === 'ar' ? '6. إنشاء وحفظ حملات الإشعارات للعملاء' : '6. Create and save customer notification campaigns'}
                 </span>
                 <span className="text-[11px] text-[#64748B]">
-                  {lang === 'ar' ? 'إرسال التنبيهات والعروض الترويجية الفورية للعملاء' : 'Execute push promotions and updates'}
+                  {lang === 'ar' ? 'إعداد رسائل العروض وربطها بسجل الحملات' : 'Prepare promotional messages and attach them to campaign history'}
                 </span>
               </div>
               <div className="shrink-0 ml-2">

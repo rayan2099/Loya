@@ -50,6 +50,14 @@ export const getRolePresetPermissions = (role: Employee['role']): Employee['perm
 
 export type NavTab = 'home' | 'customers' | 'scanner' | 'analytics' | 'management';
 
+export interface LoyaltyActionResult {
+  success: boolean;
+  error?: string;
+  requiresPin?: boolean;
+  nextAllowedAt?: number;
+  transaction?: Transaction;
+}
+
 interface StoreContextType {
   storeProfile: StoreProfile;
   setStoreProfile: React.Dispatch<React.SetStateAction<StoreProfile>>;
@@ -71,8 +79,8 @@ interface StoreContextType {
   addLoyaltyCard: (card: Omit<LoyaltyCard, 'id' | 'createdAt' | 'customersCount'>) => LoyaltyCard;
   updateLoyaltyCard: (card: LoyaltyCard) => void;
   deleteLoyaltyCard: (id: string) => void;
-  addPointsToCustomer: (customerId: string, amount: number, note?: string) => void;
-  redeemCustomerReward: (customerId: string, rewardId: string, pointsCost: number, rewardTitle: string) => boolean;
+  addPointsToCustomer: (customerId: string, amount: number, note?: string) => LoyaltyActionResult;
+  redeemCustomerReward: (customerId: string, rewardId: string, pointsCost: number, rewardTitle: string, pin?: string) => LoyaltyActionResult;
   addCustomer: (name: string, phone: string, cardId: string) => Customer;
   addEmployee: (name: string, role: Employee['role'], phone: string) => Employee;
   resendEmployeeCode: (id: string) => Employee | undefined;
@@ -94,6 +102,20 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'loya_app_data_v1';
+const DEFAULT_CARD_SECURITY = {
+  cashierPinEnabled: true,
+  cashierPin: '1234',
+  duplicateScanWindowSeconds: 60,
+  staffAuditEnabled: true,
+};
+
+const withDefaultCardSecurity = (card: LoyaltyCard): LoyaltyCard => ({
+  ...card,
+  security: {
+    ...DEFAULT_CARD_SECURITY,
+    ...(card.security || {}),
+  },
+});
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [storeProfile, setStoreProfile] = useState<StoreProfile>(initialStoreProfile);
@@ -128,7 +150,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const parsed = JSON.parse(saved);
         if (parsed.storeProfile) setStoreProfile(parsed.storeProfile);
-        if (parsed.loyaltyCards) setLoyaltyCards(parsed.loyaltyCards);
+        if (parsed.loyaltyCards) setLoyaltyCards(parsed.loyaltyCards.map(withDefaultCardSecurity));
         if (parsed.customers) setCustomers(parsed.customers);
         if (parsed.employees) setEmployees(parsed.employees);
         if (parsed.transactions) setTransactions(parsed.transactions);
@@ -178,9 +200,46 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLoyaltyCards((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const addPointsToCustomer = (customerId: string, amount: number, note?: string) => {
+  const getActingEmployee = () => currentEmployeeSession || employees.find((e) => e.status === 'نشط') || null;
+
+  const addPointsToCustomer = (customerId: string, amount: number, note?: string): LoyaltyActionResult => {
     const targetCustomer = customers.find((c) => c.id === customerId);
-    if (!targetCustomer) return;
+    if (!targetCustomer) {
+      return {
+        success: false,
+        error: lang === 'ar' ? 'لم يتم العثور على العميل.' : 'Customer was not found.',
+      };
+    }
+
+    const targetCard = loyaltyCards.find((card) => card.id === targetCustomer.cardId);
+    const security = targetCard?.security;
+    const now = Date.now();
+    const cooldownMs = (security?.duplicateScanWindowSeconds || 0) * 1000;
+
+    if (amount > 0 && cooldownMs > 0) {
+      const recentEarn = transactions.find(
+        (tx) =>
+          tx.customerId === customerId &&
+          tx.cardId === targetCustomer.cardId &&
+          (tx.type === 'earn' || tx.type === 'stamp') &&
+          tx.createdAtMs &&
+          now - tx.createdAtMs < cooldownMs
+      );
+
+      if (recentEarn?.createdAtMs) {
+        const remainingSeconds = Math.max(1, Math.ceil((recentEarn.createdAtMs + cooldownMs - now) / 1000));
+        return {
+          success: false,
+          nextAllowedAt: recentEarn.createdAtMs + cooldownMs,
+          error:
+            lang === 'ar'
+              ? `تم منع المسح المكرر. انتظر ${remainingSeconds} ثانية قبل الإضافة مرة أخرى.`
+              : `Duplicate scan blocked. Wait ${remainingSeconds} seconds before adding again.`,
+        };
+      }
+    }
+
+    const actingEmployee = getActingEmployee();
 
     setCustomers((prev) =>
       prev.map((c) => {
@@ -188,10 +247,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const isStamp = c.stampsBalance !== undefined;
           return {
             ...c,
-            pointsBalance: c.pointsBalance + amount,
-            stampsBalance: isStamp ? (c.stampsBalance || 0) + amount : undefined,
-            totalEarned: c.totalEarned + amount,
-            visits: c.visits + 1,
+            pointsBalance: Math.max(0, c.pointsBalance + amount),
+            stampsBalance: isStamp ? Math.max(0, (c.stampsBalance || 0) + amount) : undefined,
+            totalEarned: c.totalEarned + Math.max(amount, 0),
+            visits: amount > 0 ? c.visits + 1 : c.visits,
             lastVisit: 'الآن',
           };
         }
@@ -208,7 +267,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       type: targetCustomer.stampsBalance !== undefined ? 'stamp' : 'earn',
       amount,
       note: note || `إضافة ${amount} ${targetCustomer.stampsBalance !== undefined ? 'طابع ختمي' : 'نقطة'}`,
-      cashierName: 'محمد العمري',
+      cashierName: actingEmployee?.name || (lang === 'ar' ? 'مدير النظام' : 'System admin'),
+      staffId: security?.staffAuditEnabled ? actingEmployee?.id : undefined,
+      staffCode: security?.staffAuditEnabled ? actingEmployee?.authCode : undefined,
+      createdAtMs: now,
     };
     setTransactions((prev) => [newTx, ...prev]);
 
@@ -218,18 +280,38 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       spread: 70,
       origin: { y: 0.6 },
     });
+
+    return { success: true, transaction: newTx };
   };
 
   const redeemCustomerReward = (
     customerId: string,
     rewardId: string,
     pointsCost: number,
-    rewardTitle: string
-  ): boolean => {
+    rewardTitle: string,
+    pin?: string
+  ): LoyaltyActionResult => {
     const targetCustomer = customers.find((c) => c.id === customerId);
     if (!targetCustomer || targetCustomer.pointsBalance < pointsCost) {
-      return false;
+      return {
+        success: false,
+        error: lang === 'ar' ? 'رصيد العميل غير كافٍ لصرف هذه المكافأة.' : 'Customer balance is not enough for this reward.',
+      };
     }
+
+    const targetCard = loyaltyCards.find((card) => card.id === targetCustomer.cardId);
+    const security = targetCard?.security;
+
+    if (security?.cashierPinEnabled && (pin || '').trim() !== security.cashierPin) {
+      return {
+        success: false,
+        requiresPin: true,
+        error: lang === 'ar' ? 'رمز الكاشير غير صحيح. أدخل الرمز قبل صرف المكافأة.' : 'Cashier PIN is incorrect. Enter the PIN before redeeming.',
+      };
+    }
+
+    const actingEmployee = getActingEmployee();
+    const now = Date.now();
 
     setCustomers((prev) =>
       prev.map((c) => {
@@ -255,7 +337,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       type: 'redeem',
       amount: -pointsCost,
       note: `صرف مكافأة: ${rewardTitle}`,
-      cashierName: 'سارة الزهراني',
+      cashierName: actingEmployee?.name || (lang === 'ar' ? 'مدير النظام' : 'System admin'),
+      staffId: security?.staffAuditEnabled ? actingEmployee?.id : undefined,
+      staffCode: security?.staffAuditEnabled ? actingEmployee?.authCode : undefined,
+      createdAtMs: now,
     };
     setTransactions((prev) => [newTx, ...prev]);
 
@@ -267,7 +352,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       colors: ['#FF6B35', '#10B981', '#F59E0B', '#3B82F6'],
     });
 
-    return true;
+    return { success: true, transaction: newTx };
   };
 
   const addCustomer = (name: string, phone: string, cardId: string) => {

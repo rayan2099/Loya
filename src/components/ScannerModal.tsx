@@ -8,7 +8,7 @@ import {
   Search,
   Sparkles,
   History,
-  Award,
+  Lock,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Customer } from '../types';
@@ -25,6 +25,8 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
   const [customPoints, setCustomPoints] = useState<number | ''>('');
   const [activeAction, setActiveAction] = useState<'add' | 'redeem'>('add');
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [noticeType, setNoticeType] = useState<'success' | 'error'>('success');
+  const [cashierPin, setCashierPin] = useState('');
 
   const activeCard = loyaltyCards.find((c) => c.id === selectedCustomer?.cardId) || loyaltyCards[0];
   const isStampCard = activeCard?.ruleType === 'stamp_buy_5';
@@ -35,11 +37,14 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
   const handleQuickAdd = (amount: number) => {
     if (!selectedCustomer) return;
-    addPointsToCustomer(selectedCustomer.id, amount);
+    const result = addPointsToCustomer(selectedCustomer.id, amount);
+    setNoticeType(result.success ? 'success' : 'error');
     setSuccessMsg(
-      lang === 'ar'
-        ? `تم إضافة ${amount} ${isStampCard ? 'طابع ختمي' : 'نقطة'} لـ ${selectedCustomer.name} بنجاح!`
-        : `Successfully added ${amount} points!`
+      result.success
+        ? lang === 'ar'
+          ? `تم إضافة ${amount} ${isStampCard ? 'طابع ختمي' : 'نقطة'} لـ ${selectedCustomer.name} بنجاح!`
+          : `Successfully added ${amount} points!`
+        : result.error || (lang === 'ar' ? 'تعذر إضافة الرصيد.' : 'Unable to add balance.')
     );
     setTimeout(() => setSuccessMsg(null), 3000);
   };
@@ -47,19 +52,28 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
   const handleCustomAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCustomer || !customPoints || Number(customPoints) <= 0) return;
-    addPointsToCustomer(selectedCustomer.id, Number(customPoints));
-    setSuccessMsg(`تم إضافة ${customPoints} بنجاح!`);
-    setCustomPoints('');
+    const result = addPointsToCustomer(selectedCustomer.id, Number(customPoints));
+    setNoticeType(result.success ? 'success' : 'error');
+    setSuccessMsg(
+      result.success
+        ? lang === 'ar'
+          ? `تم إضافة ${customPoints} بنجاح!`
+          : `Added ${customPoints} successfully!`
+        : result.error || (lang === 'ar' ? 'تعذر إضافة الرصيد.' : 'Unable to add balance.')
+    );
+    if (result.success) setCustomPoints('');
     setTimeout(() => setSuccessMsg(null), 3000);
   };
 
   const handleRedeem = (rewardId: string, cost: number, title: string) => {
     if (!selectedCustomer) return;
-    const ok = redeemCustomerReward(selectedCustomer.id, rewardId, cost, title);
-    if (ok) {
+    const result = redeemCustomerReward(selectedCustomer.id, rewardId, cost, title, cashierPin);
+    setNoticeType(result.success ? 'success' : 'error');
+    if (result.success) {
       setSuccessMsg(`🎉 تم صرف المكافأة: "${title}" للعميل!`);
+      setCashierPin('');
     } else {
-      setSuccessMsg(`⚠️ رصيد العميل غير كافٍ لصرف هذه المكافأة.`);
+      setSuccessMsg(result.error || `⚠️ رصيد العميل غير كافٍ لصرف هذه المكافأة.`);
     }
     setTimeout(() => setSuccessMsg(null), 3500);
   };
@@ -201,8 +215,14 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
           {/* Success Notification Banner */}
           {successMsg && (
-            <div className="p-3.5 rounded-xl bg-[#F0FDFA] border border-[#0D9488]/20 text-[#0F766E] text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-              <Sparkles className="w-4 h-4 text-[#0D9488] shrink-0" />
+            <div
+              className={`p-3.5 rounded-xl border text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
+                noticeType === 'success'
+                  ? 'bg-[#F0FDFA] border-[#0D9488]/20 text-[#0F766E]'
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+            >
+              <Sparkles className={`w-4 h-4 shrink-0 ${noticeType === 'success' ? 'text-[#0D9488]' : 'text-red-600'}`} />
               <span>{successMsg}</span>
             </div>
           )}
@@ -263,11 +283,33 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                     {lang === 'ar' ? 'اختر المكافأة ليتم صرفها للعميل فوراً:' : 'Available Rewards:'}
                   </span>
 
+                  {activeCard?.security?.cashierPinEnabled && (
+                    <div className="rounded-2xl bg-white border border-purple-100 p-3 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-[11px] font-bold text-gray-700 block mb-1">
+                          {lang === 'ar' ? 'رمز الكاشير مطلوب قبل الصرف' : 'Cashier PIN required before redemption'}
+                        </label>
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          value={cashierPin}
+                          onChange={(e) => setCashierPin(e.target.value)}
+                          placeholder={lang === 'ar' ? 'أدخل رمز الصرف' : 'Enter redemption PIN'}
+                          className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-2.5">
                     {activeCard?.rewards.map((rew) => {
                       const canAfford =
                         (isStampCard ? selectedCustomer.stampsBalance || 0 : selectedCustomer.pointsBalance) >=
                         rew.pointsCost;
+                      const needsPin = Boolean(activeCard?.security?.cashierPinEnabled && cashierPin.trim().length === 0);
 
                       return (
                         <div
@@ -290,15 +332,25 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
                           <button
                             type="button"
-                            disabled={!canAfford}
+                            disabled={!canAfford || needsPin}
                             onClick={() => handleRedeem(rew.id, rew.pointsCost, rew.title)}
                             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                              canAfford
+                              canAfford && !needsPin
                                 ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md active:scale-95'
                                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                             }`}
                           >
-                            {canAfford ? (lang === 'ar' ? 'صرف المكافأة' : 'Redeem Reward') : (lang === 'ar' ? 'رصيد غير كافٍ' : 'Insufficient Balance')}
+                            {!canAfford
+                              ? lang === 'ar'
+                                ? 'رصيد غير كافٍ'
+                                : 'Insufficient Balance'
+                              : needsPin
+                              ? lang === 'ar'
+                                ? 'أدخل الرمز'
+                                : 'Enter PIN'
+                              : lang === 'ar'
+                              ? 'صرف المكافأة'
+                              : 'Redeem Reward'}
                           </button>
                         </div>
                       );

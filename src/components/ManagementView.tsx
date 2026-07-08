@@ -101,8 +101,8 @@ export const ManagementView: React.FC = () => {
           </h2>
           <p className="text-xs text-[#64748B] mt-0.5">
             {lang === 'ar'
-              ? 'تحكم في صلاحيات الكاشير، كود انضمام الفروع، ومزامنة خوادم Apple & Google Wallet'
-              : 'Configure cashier access, branch join codes, and Apple/Google cloud connectivity'}
+              ? 'تحكم في صلاحيات الكاشير، كود انضمام الفروع، وحالة ربط Apple & Google Wallet'
+              : 'Configure cashier access, branch join codes, and Apple/Google Wallet connection status'}
           </p>
         </div>
 
@@ -400,18 +400,18 @@ export const ManagementView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base sm:text-lg leading-snug">
-                    {lang === 'ar' ? 'مركز مزامنة محافظ Apple & Google Wallet السحابي' : 'Apple & Google Wallet Cloud Sync Hub'}
+                    {lang === 'ar' ? 'حالة ربط محافظ Apple & Google Wallet' : 'Apple & Google Wallet Connection Status'}
                   </h3>
                   <p className="text-xs text-white/90">
                     {lang === 'ar'
-                      ? 'جميع بطاقات منشأتك مرتبطة لحظياً بخوادم المحافظ وتعمل بدون انقطاع (99.9% Uptime)'
-                      : 'Real-time synchronization active with official Apple Push Notification Service (APNs) & Google API'}
+                      ? 'يعرض هذا القسم عدد العملاء الذين اختاروا نوع المحفظة، وحالة الربط الرسمية قبل تفعيل المزامنة.'
+                      : 'This section shows customer wallet preferences and official connection readiness before live sync is enabled.'}
                   </p>
                 </div>
               </div>
               <span className="self-start sm:self-auto px-3 py-1.5 rounded-full bg-white text-[#0D9488] font-black text-xs shadow-sm shrink-0 flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4 text-[#0D9488]" />
-                <span>{lang === 'ar' ? 'متصل ومؤمن بشهادة SSL 🔒' : 'Operational & Secure 🔒'}</span>
+                <span>{storeProfile.walletSyncStatus === 'connected' ? (lang === 'ar' ? 'حالة الربط: متصل' : 'Connection: Connected') : (lang === 'ar' ? 'بانتظار الربط الرسمي' : 'Awaiting official setup')}</span>
               </span>
             </div>
 
@@ -419,22 +419,22 @@ export const ManagementView: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15">
                 <span className="text-[11px] text-white/80 font-semibold block">
-                  {lang === 'ar' ? 'بطاقات Apple Wallet' : 'Apple Passes Synced'}
+                  {lang === 'ar' ? 'عملاء اختاروا Apple Wallet' : 'Apple Wallet Customers'}
                 </span>
                 <span className="text-xl sm:text-2xl font-black text-white mt-1 block">
                   {customers.filter((c) => c.walletStatus === 'apple' || c.walletStatus === 'both').length}
                 </span>
-                <span className="text-[10px] text-emerald-200 font-bold block mt-0.5">✓ {lang === 'ar' ? 'محدثة لحظياً' : 'Real-time sync'}</span>
+                <span className="text-[10px] text-emerald-200 font-bold block mt-0.5">✓ {lang === 'ar' ? 'مسجلون في النظام' : 'Tracked in Loya'}</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15">
                 <span className="text-[11px] text-white/80 font-semibold block">
-                  {lang === 'ar' ? 'بطاقات Google Wallet' : 'Google Passes Synced'}
+                  {lang === 'ar' ? 'عملاء اختاروا Google Wallet' : 'Google Wallet Customers'}
                 </span>
                 <span className="text-xl sm:text-2xl font-black text-white mt-1 block">
                   {customers.filter((c) => c.walletStatus === 'google' || c.walletStatus === 'both').length}
                 </span>
-                <span className="text-[10px] text-emerald-200 font-bold block mt-0.5">✓ {lang === 'ar' ? 'محدثة لحظياً' : 'Real-time sync'}</span>
+                <span className="text-[10px] text-emerald-200 font-bold block mt-0.5">✓ {lang === 'ar' ? 'مسجلون في النظام' : 'Tracked in Loya'}</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15">

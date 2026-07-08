@@ -126,8 +126,8 @@ export const CardDetailsModal: React.FC<CardDetailsModalProps> = ({ card, onClos
                   </li>
                   <li>
                     {lang === 'ar'
-                      ? 'يتم تحديث رصيد النقاط أو الأختام في محفظة Apple & Google Wallet تلقائياً في نفس اللحظة.'
-                      : 'Points and stamps balance syncs immediately to lockscreen Apple & Google Wallet.'}
+                      ? 'يتم تحديث رصيد النقاط أو الأختام داخل لوحة loya فوراً، وتحتاج مزامنة Apple & Google Wallet إلى ربط الحسابات الرسمية.'
+                      : 'Points and stamps update instantly inside Loya; Apple & Google Wallet sync requires official account connection.'}
                   </li>
                   <li>
                     {lang === 'ar'

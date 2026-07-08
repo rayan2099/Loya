@@ -34,6 +34,12 @@ export const initialLoyaltyCards: LoyaltyCard[] = [
       instagram: '@star_cafe_sa',
       customNote: 'صالحة في جميع فروع المملكة العربية السعودية. يحصل العميل على نقطة لكل ريال.',
     },
+    security: {
+      cashierPinEnabled: true,
+      cashierPin: '1234',
+      duplicateScanWindowSeconds: 60,
+      staffAuditEnabled: true,
+    },
     quickAddButtons: [10, 25, 50],
     rewards: [
       { id: 'r1', title: 'قهوة اسبريسو أو أمريكانو مجاناً', pointsCost: 50, icon: '☕' },
@@ -64,6 +70,12 @@ export const initialLoyaltyCards: LoyaltyCard[] = [
       phone: '0535110460',
       instagram: '@star_cafe_sa',
       customNote: 'يضاف ختم واحد لكل مشروب ساخن أو بارد.',
+    },
+    security: {
+      cashierPinEnabled: true,
+      cashierPin: '1234',
+      duplicateScanWindowSeconds: 60,
+      staffAuditEnabled: true,
     },
     quickAddButtons: [1, 2, 3],
     rewards: [
