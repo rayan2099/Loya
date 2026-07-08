@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, QrCode, Plus, Minus, Award, Calendar, Smartphone, Clock, CheckCircle2, History, AlertCircle } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { X, Plus, Minus, Award, Calendar, Smartphone, Clock, CheckCircle2, History, AlertCircle } from 'lucide-react';
 import { Customer, LoyaltyCard, Transaction } from '../types';
 import { useStore } from '../context/StoreContext';
 
@@ -20,6 +21,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const customerTransactions = transactions.filter((t) => t.customerId === customer.id);
+  const customerQrValue = `https://loya.app/member?customerId=${encodeURIComponent(customer.id)}&phone=${encodeURIComponent(customer.phone)}`;
 
   const handleSubmitAdjustment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +122,13 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ cust
 
             {/* Personal QR Code Simulation */}
             <div className="bg-white p-3 rounded-2xl shadow-md shrink-0 text-center space-y-1">
-              <QrCode className="w-24 h-24 text-slate-900 mx-auto" />
+              <QRCodeSVG
+                value={customerQrValue}
+                size={96}
+                level="M"
+                includeMargin={false}
+                className="mx-auto rounded-lg"
+              />
               <span className="text-[9px] font-bold text-slate-600 block tracking-tight uppercase">
                 {lang === 'ar' ? 'باركود العميل المباشر' : 'MEMBER BARCODE'}
               </span>

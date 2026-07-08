@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import QrScanner from 'qr-scanner';
 import {
   X,
   QrCode,
@@ -9,6 +10,8 @@ import {
   Sparkles,
   History,
   Lock,
+  Camera,
+  CameraOff,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Customer } from '../types';
@@ -27,6 +30,14 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [noticeType, setNoticeType] = useState<'success' | 'error'>('success');
   const [cashierPin, setCashierPin] = useState('');
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [scannerStatus, setScannerStatus] = useState<string>(
+    lang === 'ar' ? 'اضغط تشغيل الكاميرا لمسح بطاقة العميل' : 'Start camera to scan customer pass'
+  );
+  const [lastScannedCode, setLastScannedCode] = useState('');
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const qrScannerRef = useRef<QrScanner | null>(null);
+  const lastHandledCodeRef = useRef('');
 
   const activeCard = loyaltyCards.find((c) => c.id === selectedCustomer?.cardId) || loyaltyCards[0];
   const isStampCard = activeCard?.ruleType === 'stamp_buy_5';
@@ -35,26 +46,140 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
     (c) => c.name.includes(searchQuery) || c.phone.includes(searchQuery)
   );
 
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
+
+  const showNotice = (type: 'success' | 'error', message: string, timeout = 3000) => {
+    setNoticeType(type);
+    setSuccessMsg(message);
+    window.setTimeout(() => setSuccessMsg(null), timeout);
+  };
+
+  const normalizePhone = (value: string) => value.replace(/[^\d+]/g, '').replace(/^966/, '0');
+
+  const findCustomerFromQr = (rawValue: string) => {
+    const decoded = rawValue.trim();
+    const candidates = new Set<string>([decoded]);
+
+    try {
+      const url = new URL(decoded);
+      ['customerId', 'customer_id', 'id', 'phone', 'p'].forEach((key) => {
+        const value = url.searchParams.get(key);
+        if (value) candidates.add(value);
+      });
+      url.pathname
+        .split('/')
+        .filter(Boolean)
+        .forEach((part) => candidates.add(decodeURIComponent(part)));
+    } catch {
+      decoded
+        .split(/[\s|,;:/?=&]+/)
+        .filter(Boolean)
+        .forEach((part) => candidates.add(part));
+    }
+
+    const normalizedCandidates = Array.from(candidates).map((value) => ({
+      raw: value,
+      phone: normalizePhone(value),
+    }));
+
+    return customers.find((customer) =>
+      normalizedCandidates.some(
+        (candidate) =>
+          candidate.raw === customer.id ||
+          candidate.raw === customer.phone ||
+          candidate.phone === normalizePhone(customer.phone)
+      )
+    );
+  };
+
+  const handleScannedCode = (rawValue: string) => {
+    if (!rawValue || rawValue === lastHandledCodeRef.current) return;
+    lastHandledCodeRef.current = rawValue;
+    setLastScannedCode(rawValue);
+
+    const matchedCustomer = findCustomerFromQr(rawValue);
+    if (matchedCustomer) {
+      setSelectedCustomer(matchedCustomer);
+      setSearchQuery('');
+      showNotice(
+        'success',
+        lang === 'ar'
+          ? `تم مسح البطاقة والتعرف على ${matchedCustomer.name}`
+          : `Pass scanned. ${matchedCustomer.name} selected.`
+      );
+      stopCamera();
+      return;
+    }
+
+    showNotice(
+      'error',
+      lang === 'ar'
+        ? 'تمت قراءة QR، لكن لم يتم العثور على عميل مطابق. جرّب البحث بالرقم.'
+        : 'QR was read, but no matching customer was found. Try searching by phone.'
+    );
+    setScannerStatus(lang === 'ar' ? 'لم يتم العثور على عميل مطابق لهذا الكود' : 'No customer matched this code');
+  };
+
+  const startCamera = async () => {
+    try {
+      if (!videoRef.current) return;
+      qrScannerRef.current?.destroy();
+      qrScannerRef.current = new QrScanner(
+        videoRef.current,
+        (result) => handleScannedCode(result.data),
+        {
+          preferredCamera: 'environment',
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          returnDetailedScanResult: true,
+          onDecodeError: () => {},
+        }
+      );
+      await qrScannerRef.current.start();
+      lastHandledCodeRef.current = '';
+      setIsCameraActive(true);
+      setScannerStatus(lang === 'ar' ? 'وجّه الكاميرا نحو QR بطاقة العميل' : 'Point the camera at the customer pass QR');
+    } catch {
+      showNotice(
+        'error',
+        lang === 'ar'
+          ? 'لم نتمكن من تشغيل الكاميرا. تأكد من السماح للمتصفح باستخدام الكاميرا.'
+          : 'Could not start camera. Allow camera access in your browser settings.',
+        4500
+      );
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    qrScannerRef.current?.stop();
+    qrScannerRef.current?.destroy();
+    qrScannerRef.current = null;
+    setIsCameraActive(false);
+    setScannerStatus(lang === 'ar' ? 'تم إيقاف الكاميرا' : 'Camera stopped');
+  };
+
   const handleQuickAdd = (amount: number) => {
     if (!selectedCustomer) return;
     const result = addPointsToCustomer(selectedCustomer.id, amount);
-    setNoticeType(result.success ? 'success' : 'error');
-    setSuccessMsg(
+    showNotice(
+      result.success ? 'success' : 'error',
       result.success
         ? lang === 'ar'
           ? `تم إضافة ${amount} ${isStampCard ? 'طابع ختمي' : 'نقطة'} لـ ${selectedCustomer.name} بنجاح!`
           : `Successfully added ${amount} points!`
         : result.error || (lang === 'ar' ? 'تعذر إضافة الرصيد.' : 'Unable to add balance.')
     );
-    setTimeout(() => setSuccessMsg(null), 3000);
   };
 
   const handleCustomAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCustomer || !customPoints || Number(customPoints) <= 0) return;
     const result = addPointsToCustomer(selectedCustomer.id, Number(customPoints));
-    setNoticeType(result.success ? 'success' : 'error');
-    setSuccessMsg(
+    showNotice(
+      result.success ? 'success' : 'error',
       result.success
         ? lang === 'ar'
           ? `تم إضافة ${customPoints} بنجاح!`
@@ -62,20 +187,17 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
         : result.error || (lang === 'ar' ? 'تعذر إضافة الرصيد.' : 'Unable to add balance.')
     );
     if (result.success) setCustomPoints('');
-    setTimeout(() => setSuccessMsg(null), 3000);
   };
 
   const handleRedeem = (rewardId: string, cost: number, title: string) => {
     if (!selectedCustomer) return;
     const result = redeemCustomerReward(selectedCustomer.id, rewardId, cost, title, cashierPin);
-    setNoticeType(result.success ? 'success' : 'error');
     if (result.success) {
-      setSuccessMsg(`🎉 تم صرف المكافأة: "${title}" للعميل!`);
+      showNotice('success', `🎉 تم صرف المكافأة: "${title}" للعميل!`, 3500);
       setCashierPin('');
     } else {
-      setSuccessMsg(result.error || `⚠️ رصيد العميل غير كافٍ لصرف هذه المكافأة.`);
+      showNotice('error', result.error || `⚠️ رصيد العميل غير كافٍ لصرف هذه المكافأة.`, 3500);
     }
-    setTimeout(() => setSuccessMsg(null), 3500);
   };
 
   return (
@@ -108,6 +230,56 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
         <div className="p-5 space-y-5">
           {/* Simulated Scanner Viewport or Search */}
           <div className="space-y-3">
+            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-black text-[#1E293B]">
+                    {lang === 'ar' ? 'مسح QR بطاقة العميل بالكاميرا' : 'Scan customer QR with camera'}
+                  </h4>
+                  <p className="text-[11px] text-[#64748B] mt-0.5">{scannerStatus}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={isCameraActive ? stopCamera : startCamera}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all ${
+                    isCameraActive
+                      ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                      : 'bg-[#0D9488] text-white hover:bg-[#0F766E]'
+                  }`}
+                >
+                  {isCameraActive ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
+                  <span>{isCameraActive ? (lang === 'ar' ? 'إيقاف' : 'Stop') : (lang === 'ar' ? 'تشغيل' : 'Start')}</span>
+                </button>
+              </div>
+
+              <div className="relative overflow-hidden rounded-2xl bg-slate-950 aspect-video border border-slate-800">
+                <video
+                  ref={videoRef}
+                  muted
+                  playsInline
+                  className={`h-full w-full object-cover transition-opacity ${isCameraActive ? 'opacity-100' : 'opacity-30'}`}
+                />
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="w-36 h-36 rounded-3xl border-2 border-white/80 shadow-[0_0_0_999px_rgba(15,23,42,0.35)]" />
+                </div>
+                {!isCameraActive && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+                    <QrCode className="w-10 h-10 mb-2 opacity-90" />
+                    <span className="text-xs font-bold">
+                      {lang === 'ar' ? 'الكاميرا جاهزة لمسح QR العميل' : 'Camera-ready customer QR scanner'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {lastScannedCode && (
+                <div className="rounded-xl bg-white border border-[#E2E8F0] px-3 py-2 text-[10px] text-[#64748B]">
+                  <span className="font-bold text-[#1E293B]">{lang === 'ar' ? 'آخر كود تمت قراءته:' : 'Last scanned code:'}</span>{' '}
+                  <span dir="ltr" className="font-mono break-all">{lastScannedCode}</span>
+                </div>
+              )}
+            </div>
+
             <div className="relative">
               <Search className="w-4 h-4 absolute top-3.5 right-3.5 text-[#64748B]" />
               <input
