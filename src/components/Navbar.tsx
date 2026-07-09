@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, QrCode, BarChart3, ShieldCheck } from 'lucide-react';
+import { Home, Users, QrCode, BarChart3, Settings } from 'lucide-react';
 import { NavTab, useStore } from '../context/StoreContext';
 
 export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner }) => {
@@ -17,12 +17,12 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
       isScanner: true,
     },
     { id: 'analytics', labelAr: 'إحصائيات', labelEn: 'Analytics', icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'management', labelAr: 'الإدارة', labelEn: 'Manage', icon: <ShieldCheck className="w-5 h-5" /> },
+    { id: 'management', labelAr: 'الإدارة', labelEn: 'Manage', icon: <Settings className="w-5 h-5" /> },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E2E8F0] shadow-sm pb-safe">
-      <div className="max-w-xl xl:max-w-7xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-around xl:justify-center xl:gap-10">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 border-t border-[#E4E4E7] backdrop-blur-xl pb-safe">
+      <div className="max-w-xl xl:max-w-7xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-around xl:justify-center xl:gap-9">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           if (item.isScanner) {
@@ -35,7 +35,7 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
                 }}
                 className="flex flex-col items-center -mt-5 group px-1 shrink-0 cursor-pointer"
               >
-                <div className="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] rounded-2xl bg-[#0D9488] bg-linear-to-br bg-gradient-to-br from-[#0D9488] to-[#0F766E] shadow-md flex items-center justify-center transform transition-all duration-200 group-active:scale-95 group-hover:scale-105 border-4 border-white">
+                <div className="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] rounded-lg bg-[#0D9488] shadow-md flex items-center justify-center transform transition-all duration-200 group-active:scale-95 group-hover:scale-105 border-4 border-white">
                   {item.icon}
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-bold text-[#0D9488] mt-1 whitespace-nowrap">
@@ -51,11 +51,11 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`relative flex flex-col items-center py-1 px-1.5 sm:px-2.5 rounded-xl transition-all shrink-0 cursor-pointer ${
-                isActive ? 'text-[#0D9488] font-bold' : 'text-[#64748B] hover:text-[#1E293B] font-medium'
+              className={`relative flex flex-col items-center py-1 px-1.5 sm:px-2.5 rounded-lg transition-all shrink-0 cursor-pointer ${
+                isActive ? 'text-[#0D9488] font-black' : 'text-[#71717A] hover:text-[#18181B] font-medium'
               }`}
             >
-              <div className={`relative p-1 rounded-lg transition-colors ${isActive ? 'bg-[#F0FDFA]' : ''}`}>
+              <div className={`relative p-1 rounded-lg transition-colors ${isActive ? 'bg-[#ECFDF9]' : ''}`}>
                 {item.icon}
                 {isManageWithPending && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse border-2 border-white shadow-xs">

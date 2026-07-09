@@ -41,11 +41,9 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 text-[#1E293B] flex flex-col font-sans" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Top Header */}
+    <div className="min-h-screen bg-[#F7F7F5] pb-24 text-[#18181B] flex flex-col font-sans" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <Header />
 
-      {/* Main View Area */}
       <main className="flex-1 w-full max-w-xl xl:max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
         {activeTab === 'home' && <HomeView onOpenScanner={() => setShowScannerModal(true)} />}
         {activeTab === 'customers' && <CustomersView />}
@@ -53,10 +51,8 @@ const AppContent: React.FC = () => {
         {activeTab === 'management' && <ManagementView />}
       </main>
 
-      {/* Bottom Navigation Bar */}
       <Navbar onOpenScanner={() => setShowScannerModal(true)} />
 
-      {/* Live cashier scanner */}
       {showScannerModal && <ScannerModal onClose={() => setShowScannerModal(false)} />}
     </div>
   );

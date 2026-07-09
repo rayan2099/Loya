@@ -4,8 +4,49 @@
 @layer base {
   body {
     font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-    background-color: #F8FAFC;
-    color: #1E293B;
+    background-color: #F7F7F5;
+    color: #18181B;
   }
 }
 
+@layer components {
+  .surface {
+    @apply rounded-lg border border-[#E4E4E7] bg-white shadow-[0_1px_1px_rgba(24,24,27,0.02),0_16px_36px_-34px_rgba(24,24,27,0.45)];
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-black transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-[#0D9488] text-white hover:bg-[#0F766E];
+  }
+
+  .btn-secondary {
+    @apply bg-[#ECECEA] text-[#18181B] hover:bg-[#E4E4E7];
+  }
+
+  .field-input {
+    @apply w-full rounded-lg border border-[#E4E4E7] bg-[#FAFAF9] px-4 py-3 text-sm font-bold text-[#18181B] outline-none transition focus:border-[#0D9488] focus:bg-white focus:ring-4 focus:ring-[#0D9488]/10;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black;
+  }
+
+  .quiet-action {
+    @apply flex items-center gap-3 rounded-lg p-4 text-right transition-all active:scale-[0.98];
+  }
+
+  .quiet-action h4 {
+    @apply text-sm font-black;
+  }
+
+  .quiet-action p {
+    @apply mt-0.5 text-xs font-semibold opacity-75;
+  }
+
+  .mini-tool {
+    @apply inline-flex items-center gap-1.5 rounded-lg bg-[#F4F4F5] px-3 py-2 text-xs font-black text-[#52525B] transition hover:bg-[#E4E4E7];
+  }
+}
