@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
     <header className="sticky top-0 z-30 bg-[#F7F7F5]/90 border-b border-[#E4E4E7] px-4 sm:px-6 py-3 backdrop-blur-xl">
       <div className="max-w-xl xl:max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
-          <div className="w-9 h-9 rounded-lg bg-[#18181B] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0D9488] to-[#2563EB] flex items-center justify-center shrink-0 shadow-[0_10px_26px_-18px_rgba(37,99,235,0.8)]">
             <Store className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0 flex-1">
@@ -38,7 +38,7 @@ export const Header: React.FC = () => {
                 </button>
               )}
             </div>
-            <h1 className="text-sm sm:text-base font-black text-[#18181B] tracking-tight flex items-center gap-1 truncate">
+            <h1 className="text-sm sm:text-base font-bold text-[#263241] tracking-tight flex items-center gap-1 truncate">
               <span className="truncate">{storeProfile.name}</span>
             </h1>
           </div>
@@ -47,7 +47,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-            className="px-2.5 py-1.5 rounded-lg bg-[#ECECEA] hover:bg-[#E4E4E7] active:scale-95 transition-all text-xs font-bold text-[#18181B] flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-lg bg-white/80 hover:bg-white active:scale-95 transition-all text-xs font-bold text-[#3F4A5A] flex items-center gap-1 border border-[#EEF0F2]"
             title={lang === 'ar' ? 'Switch to English' : 'التحويل للعربية'}
           >
             <Globe className="w-3.5 h-3.5 text-[#0D9488]" />
@@ -57,7 +57,7 @@ export const Header: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-lg bg-[#ECECEA] hover:bg-[#E4E4E7] active:scale-95 transition-all relative text-[#18181B]"
+              className="p-2 rounded-lg bg-white/80 hover:bg-white active:scale-95 transition-all relative text-[#3F4A5A] border border-[#EEF0F2]"
             >
               <Bell className="w-4 h-4 text-[#64748B]" />
               {campaigns.length > 0 && (
@@ -66,9 +66,9 @@ export const Header: React.FC = () => {
             </button>
 
             {showNotifications && (
-              <div className="absolute left-0 mt-2 w-80 bg-white text-[#18181B] rounded-lg shadow-xl border border-[#E4E4E7] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute left-0 mt-2 w-80 bg-white text-[#263241] rounded-lg shadow-xl border border-[#E4E4E7] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-3 bg-[#F7F7F5] border-b border-[#E4E4E7] flex items-center justify-between">
-                  <span className="font-bold text-xs text-[#18181B]">
+                  <span className="font-bold text-xs text-[#263241]">
                     {lang === 'ar' ? 'آخر الحملات والإشعارات' : 'Recent Campaigns'}
                   </span>
                   <span className="text-[11px] bg-[#ECFDF9] text-[#0D9488] font-bold px-2 py-0.5 rounded-full border border-[#0D9488]/20">
@@ -84,7 +84,7 @@ export const Header: React.FC = () => {
                     campaigns.map((camp) => (
                       <div key={camp.id} className="p-3 hover:bg-[#F7F7F5] transition-colors">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-bold text-xs text-[#18181B]">{camp.title}</h4>
+                          <h4 className="font-bold text-xs text-[#263241]">{camp.title}</h4>
                           <span className="text-[10px] text-[#71717A]">{camp.sentAt}</span>
                         </div>
                         <p className="text-xs text-[#71717A] line-clamp-2">{camp.message}</p>

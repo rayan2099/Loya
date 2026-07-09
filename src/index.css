@@ -4,34 +4,41 @@
 @layer base {
   body {
     font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-    background-color: #F7F7F5;
-    color: #18181B;
+    background:
+      radial-gradient(circle at top right, rgba(13, 148, 136, 0.08), transparent 32rem),
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 28rem),
+      #F7F7F5;
+    color: #263241;
+  }
+
+  .font-black {
+    font-weight: 700 !important;
   }
 }
 
 @layer components {
   .surface {
-    @apply rounded-lg border border-[#E4E4E7] bg-white shadow-[0_1px_1px_rgba(24,24,27,0.02),0_16px_36px_-34px_rgba(24,24,27,0.45)];
+    @apply rounded-lg border border-[#E7EAEE] bg-white/95 shadow-[0_1px_1px_rgba(38,50,65,0.02),0_18px_42px_-34px_rgba(38,50,65,0.38)] backdrop-blur-sm;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg font-black transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply bg-[#0D9488] text-white hover:bg-[#0F766E];
+    @apply bg-gradient-to-br from-[#12A594] to-[#0B8A7D] text-white hover:brightness-105;
   }
 
   .btn-secondary {
-    @apply bg-[#ECECEA] text-[#18181B] hover:bg-[#E4E4E7];
+    @apply bg-[#F2F3F5] text-[#3F4A5A] hover:bg-[#E9ECEF];
   }
 
   .field-input {
-    @apply w-full rounded-lg border border-[#E4E4E7] bg-[#FAFAF9] px-4 py-3 text-sm font-bold text-[#18181B] outline-none transition focus:border-[#0D9488] focus:bg-white focus:ring-4 focus:ring-[#0D9488]/10;
+    @apply w-full rounded-lg border border-[#E4E8EE] bg-[#FAFBFC] px-4 py-3 text-sm font-semibold text-[#263241] outline-none transition focus:border-[#0D9488] focus:bg-white focus:ring-4 focus:ring-[#0D9488]/10;
   }
 
   .pill {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black;
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold;
   }
 
   .quiet-action {
@@ -39,7 +46,7 @@
   }
 
   .quiet-action h4 {
-    @apply text-sm font-black;
+    @apply text-sm font-bold;
   }
 
   .quiet-action p {
@@ -47,6 +54,45 @@
   }
 
   .mini-tool {
-    @apply inline-flex items-center gap-1.5 rounded-lg bg-[#F4F4F5] px-3 py-2 text-xs font-black text-[#52525B] transition hover:bg-[#E4E4E7];
+    @apply inline-flex items-center gap-1.5 rounded-lg bg-[#F4F5F7] px-3 py-2 text-xs font-bold text-[#525C6A] transition hover:bg-[#ECEFF3];
+  }
+
+  .mini-danger {
+    @apply bg-[#FFF1F3] text-[#E11D48] hover:bg-[#FFE4E8];
+  }
+
+  .hero-sheen {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,255,255,0.9)),
+      radial-gradient(circle at 18% 20%, rgba(37,99,235,0.10), transparent 20rem),
+      radial-gradient(circle at 82% 12%, rgba(13,148,136,0.14), transparent 18rem);
+  }
+
+  .metric-card {
+    @apply relative overflow-hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    opacity: 0.8;
+  }
+
+  .metric-teal::before { background: #0D9488; }
+  .metric-blue::before { background: #2563EB; }
+  .metric-violet::before { background: #7C3AED; }
+  .metric-rose::before { background: #E11D48; }
+
+  .metric-teal .metric-icon { @apply bg-[#EAFBF7] text-[#0D9488]; }
+  .metric-blue .metric-icon { @apply bg-[#EFF6FF] text-[#2563EB]; }
+  .metric-violet .metric-icon { @apply bg-[#F5F3FF] text-[#7C3AED]; }
+  .metric-rose .metric-icon { @apply bg-[#FFF1F3] text-[#E11D48]; }
+
+  .insight-tile {
+    @apply flex min-h-20 items-center gap-2 rounded-lg px-3 py-3 text-xs font-bold leading-relaxed;
   }
 }

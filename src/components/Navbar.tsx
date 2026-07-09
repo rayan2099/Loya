@@ -52,13 +52,13 @@ export const Navbar: React.FC<{ onOpenScanner: () => void }> = ({ onOpenScanner 
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`relative flex flex-col items-center py-1 px-1.5 sm:px-2.5 rounded-lg transition-all shrink-0 cursor-pointer ${
-                isActive ? 'text-[#0D9488] font-black' : 'text-[#71717A] hover:text-[#18181B] font-medium'
+                isActive ? 'text-[#0D9488] font-bold' : 'text-[#71717A] hover:text-[#3F4A5A] font-medium'
               }`}
             >
               <div className={`relative p-1 rounded-lg transition-colors ${isActive ? 'bg-[#ECFDF9]' : ''}`}>
                 {item.icon}
                 {isManageWithPending && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse border-2 border-white shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse border-2 border-white shadow-xs">
                     {pendingCount}
                   </span>
                 )}
