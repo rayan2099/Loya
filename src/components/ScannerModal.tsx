@@ -201,27 +201,27 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-xl border border-[#E2E8F0] flex flex-col">
+    <div className="modal-backdrop">
+      <div className="modal-panel w-full max-w-lg max-h-[92vh] overflow-y-auto flex flex-col">
         {/* Header */}
-        <div className="p-4 bg-[#F8FAFC] text-[#1E293B] rounded-t-2xl flex items-center justify-between sticky top-0 z-20 border-b border-[#E2E8F0]">
+        <div className="p-4 bg-white/80 text-[#263241] flex items-center justify-between sticky top-0 z-20 border-b border-[#EEF0F2] backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0D9488] flex items-center justify-center border border-[#0D9488]/20">
               <QrCode className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h3 className="font-bold text-base flex items-center gap-2 text-[#1E293B]">
+              <h3 className="font-bold text-base flex items-center gap-2 text-[#263241]">
                 <span>{lang === 'ar' ? 'ماسح الكاشير المباشر' : 'Live Cashier Scanner'}</span>
                 <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping" />
               </h3>
-              <p className="text-xs text-[#64748B]">
+              <p className="text-xs text-[#71717A]">
                 {lang === 'ar' ? 'امسح الباركود أو ابحث برقم جوال العميل' : 'Scan barcode or search customer phone'}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-[#F1F5F9] hover:bg-slate-200 text-[#64748B] transition-colors"
+            className="p-2 rounded-lg bg-[#F4F5F7] hover:bg-[#ECEFF3] text-[#64748B] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -230,10 +230,10 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
         <div className="p-5 space-y-5">
           {/* Simulated Scanner Viewport or Search */}
           <div className="space-y-3">
-            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 space-y-3">
+            <div className="rounded-lg border border-[#EEF0F2] bg-[#FAFBFC] p-3 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-xs font-black text-[#1E293B]">
+                  <h4 className="text-xs font-bold text-[#263241]">
                     {lang === 'ar' ? 'مسح QR بطاقة العميل بالكاميرا' : 'Scan customer QR with camera'}
                   </h4>
                   <p className="text-[11px] text-[#64748B] mt-0.5">{scannerStatus}</p>
@@ -241,10 +241,10 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                 <button
                   type="button"
                   onClick={isCameraActive ? stopCamera : startCamera}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all ${
+                  className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all ${
                     isCameraActive
                       ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
-                      : 'bg-[#0D9488] text-white hover:bg-[#0F766E]'
+                      : 'bg-gradient-to-br from-[#12A594] to-[#0B8A7D] text-white hover:brightness-105'
                   }`}
                 >
                   {isCameraActive ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
@@ -252,7 +252,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                 </button>
               </div>
 
-              <div className="relative overflow-hidden rounded-2xl bg-slate-950 aspect-video border border-slate-800">
+              <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-[#1E3A5F] to-[#0F766E] aspect-video border border-white/30">
                 <video
                   ref={videoRef}
                   muted
@@ -323,30 +323,29 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
           {/* Scanned Customer Card Banner */}
           {selectedCustomer && (
-            <div className="bg-[#1E293B] bg-linear-to-br bg-gradient-to-br from-[#1E293B] to-gray-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-gray-800">
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl" />
+            <div className="rounded-2xl p-5 relative overflow-hidden border border-[#D8F3EC] bg-gradient-to-br from-[#F5FFFC] to-[#EEF5FF] shadow-[0_20px_52px_-42px_rgba(38,50,65,0.55)]">
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <div className="w-14 h-14 rounded-2xl bg-[#DDF8F1] text-[#0D9488] font-bold text-xl flex items-center justify-center shadow-sm">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <div>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full inline-block">
-                      ⚡ {lang === 'ar' ? 'تم التعرف على العميل' : 'Customer verified'}
+                    <span className="text-[10px] bg-white/80 text-[#0D9488] font-bold px-2 py-0.5 rounded-full inline-block border border-[#D8F3EC]">
+                      {lang === 'ar' ? 'تم التعرف على العميل' : 'Customer verified'}
                     </span>
-                    <h4 className="font-extrabold text-lg text-white mt-1">{selectedCustomer.name}</h4>
-                    <span className="text-xs text-gray-400 font-mono block" dir="ltr">
+                    <h4 className="font-bold text-lg text-[#263241] mt-1">{selectedCustomer.name}</h4>
+                    <span className="text-xs text-[#71717A] font-mono block" dir="ltr">
                       {selectedCustomer.phone}
                     </span>
                   </div>
                 </div>
 
-                <div className="text-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/10">
-                  <span className="text-[10px] text-gray-300 uppercase font-bold block">
+                <div className="text-center bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white">
+                  <span className="text-[10px] text-[#71717A] uppercase font-bold block">
                     {isStampCard ? 'الطوابع' : 'الرصيد'}
                   </span>
-                  <span className="text-2xl font-black text-emerald-400">
+                  <span className="text-2xl font-bold text-[#0D9488]">
                     {isStampCard
                       ? `${selectedCustomer.stampsBalance || 0} / ${activeCard?.stampTarget || 5}`
                       : `${selectedCustomer.pointsBalance}`}
@@ -355,14 +354,14 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
               </div>
 
               {/* Action Tabs */}
-              <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white">
                 <button
                   type="button"
                   onClick={() => setActiveAction('add')}
                   className={`py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                     activeAction === 'add'
                       ? 'bg-[#0D9488] text-white shadow-sm'
-                      : 'bg-white/10 text-gray-300 hover:bg-white/15'
+                      : 'bg-white/70 text-[#536273] hover:bg-white'
                   }`}
                 >
                   <PlusCircle className="w-4 h-4" />
@@ -374,8 +373,8 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                   onClick={() => setActiveAction('redeem')}
                   className={`py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                     activeAction === 'redeem'
-                      ? 'bg-[#1E293B] text-white shadow-sm'
-                      : 'bg-white/10 text-gray-300 hover:bg-white/15'
+                      ? 'bg-[#EEF5FF] text-[#2563EB] shadow-sm'
+                      : 'bg-white/70 text-[#536273] hover:bg-white'
                   }`}
                 >
                   <Gift className="w-4 h-4" />
@@ -403,8 +402,8 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
           {selectedCustomer && (
             <div>
               {activeAction === 'add' ? (
-                <div className="bg-[#F8FAFC] rounded-2xl p-5 border border-[#E2E8F0] space-y-4">
-                  <span className="text-xs font-bold text-[#1E293B] block">
+                <div className="bg-[#FAFBFC] rounded-2xl p-5 border border-[#EEF0F2] space-y-4">
+                  <span className="text-xs font-bold text-[#263241] block">
                     {lang === 'ar' ? 'إضافة سريعة بزر واحد (Quick Add):' : 'Quick Add Buttons:'}
                   </span>
                   <div className="rounded-xl bg-white border border-[#E2E8F0] px-3 py-2 text-[11px] font-semibold text-[#64748B]">
@@ -415,11 +414,11 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
 
                   <div className="grid grid-cols-3 gap-3">
                     {(activeCard?.quickAddButtons || [10, 25, 50]).map((num) => (
-                      <button
+                    <button
                         key={num}
                         type="button"
                         onClick={() => handleQuickAdd(num)}
-                        className="py-3.5 rounded-xl bg-white hover:bg-[#0D9488] hover:text-white border border-[#E2E8F0] font-bold text-base text-[#1E293B] transition-all shadow-sm active:scale-95 flex flex-col items-center justify-center"
+                        className="py-3.5 rounded-xl bg-white hover:bg-[#ECFDF9] hover:text-[#0D9488] border border-[#EEF0F2] font-bold text-base text-[#263241] transition-all shadow-sm active:scale-95 flex flex-col items-center justify-center"
                       >
                         <span>+{num}</span>
                         <span className="text-[10px] font-normal opacity-70">
@@ -450,8 +449,8 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
                 </div>
               ) : (
                 /* REDEEM REWARD VIEW */
-                <div className="bg-purple-50/60 rounded-3xl p-5 border border-purple-100 space-y-3">
-                  <span className="text-xs font-bold text-gray-800 block">
+                <div className="bg-[#F8F5FF] rounded-2xl p-5 border border-[#EDE9FE] space-y-3">
+                  <span className="text-xs font-bold text-[#3F3A56] block">
                     {lang === 'ar' ? 'اختر المكافأة ليتم صرفها للعميل فوراً:' : 'Available Rewards:'}
                   </span>
 
@@ -552,7 +551,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({ onClose }) => {
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end sticky bottom-0">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-2xl bg-gray-900 text-white font-bold text-xs hover:bg-gray-800"
+            className="px-6 py-2.5 rounded-lg bg-[#F4F5F7] text-[#536273] font-bold text-xs hover:bg-[#ECEFF3]"
           >
             {lang === 'ar' ? 'إغلاق الماسح' : 'Close Scanner'}
           </button>

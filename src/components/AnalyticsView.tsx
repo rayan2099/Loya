@@ -21,7 +21,7 @@ export const AnalyticsView: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-200">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
+          <h2 className="text-xl font-bold text-[#263241] flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-[#0D9488]" />
             <span>{lang === 'ar' ? 'لوحة القيادة والتحليلات المتقدمة' : 'Pro Analytics Dashboard'}</span>
           </h2>
@@ -33,7 +33,7 @@ export const AnalyticsView: React.FC = () => {
         {storeProfile.plan === 'free' && (
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="px-4 py-2 rounded-xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-xs flex items-center gap-1.5 shadow-md hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-lg bg-gradient-to-br from-[#12A594] to-[#2563EB] text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_14px_28px_-20px_rgba(37,99,235,0.8)] hover:brightness-105 transition"
           >
             <Sparkles className="w-4 h-4" />
             <span>{lang === 'ar' ? 'ترقية لباقة Pro المفتوحة 🚀' : 'Upgrade to Pro Unlimited 🚀'}</span>
@@ -43,18 +43,18 @@ export const AnalyticsView: React.FC = () => {
 
       {/* PAYWALL OVERLAY FOR FREE PLAN REPLICATING SECTION H */}
       {storeProfile.plan === 'free' ? (
-        <div className="relative rounded-3xl overflow-hidden border border-[#E2E8F0] shadow-md bg-white p-6 sm:p-10 text-center space-y-5">
+        <div className="relative overflow-hidden surface p-6 sm:p-10 text-center space-y-5">
           {/* Simulated blurred backdrop behind paywall */}
-          <div className="absolute inset-0 bg-white/90 bg-linear-to-b bg-gradient-to-b from-white/40 via-white/80 to-white backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 space-y-4">
-            <div className="w-16 h-16 rounded-3xl bg-[#1E293B] text-[#0D9488] flex items-center justify-center shadow-xl border border-[#0D9488]/30">
+          <div className="absolute inset-0 bg-white/82 bg-linear-to-b bg-gradient-to-b from-white/50 via-white/85 to-white backdrop-blur-md z-10 flex flex-col items-center justify-center p-6 space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#EAFBF7] to-[#EFF6FF] text-[#0D9488] flex items-center justify-center shadow-[0_18px_38px_-28px_rgba(37,99,235,0.55)] border border-white">
               <Lock className="w-8 h-8 animate-pulse" />
             </div>
 
             <div className="max-w-md mx-auto space-y-2">
-              <span className="px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0D9488] font-black text-xs border border-[#0D9488]/20">
-                PRO FEATURE EXCLUSIVE 🚀
+              <span className="px-3 py-1 rounded-full bg-[#ECFDF9] text-[#0D9488] font-bold text-xs border border-[#0D9488]/20">
+                PRO INSIGHT
               </span>
-              <h3 className="font-black text-lg sm:text-xl text-[#1E293B]">
+              <h3 className="font-bold text-lg sm:text-xl text-[#263241]">
                 {lang === 'ar' ? 'التحليلات المالية والتقارير المتقدمة مقفلة في الباقة المجانية' : 'Advanced Financial Analytics Locked in Free Plan'}
               </h3>
               <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
@@ -66,7 +66,7 @@ export const AnalyticsView: React.FC = () => {
 
             <button
               onClick={() => setShowUpgradeModal(true)}
-              className="px-8 py-3.5 rounded-2xl bg-[#0D9488] bg-linear-to-r bg-gradient-to-r from-[#0D9488] to-[#0F766E] text-white font-black text-sm flex items-center gap-2 shadow-xl hover:scale-105 transition-transform"
+              className="px-8 py-3.5 rounded-lg bg-gradient-to-br from-[#12A594] to-[#2563EB] text-white font-bold text-sm flex items-center gap-2 shadow-[0_18px_34px_-24px_rgba(37,99,235,0.8)] hover:-translate-y-0.5 transition-transform"
             >
               <Sparkles className="w-5 h-5" />
               <span>{lang === 'ar' ? 'فتح كافة التقارير والترقية الآن إلى Pro 🚀' : 'Unlock Analytics & Upgrade to Pro 🚀'}</span>
@@ -76,11 +76,11 @@ export const AnalyticsView: React.FC = () => {
           {/* Dummy visual structure visible under blur */}
           <div className="opacity-30 pointer-events-none select-none space-y-6">
             <div className="grid grid-cols-3 gap-3">
-              <div className="h-28 bg-slate-200 rounded-2xl" />
-              <div className="h-28 bg-slate-200 rounded-2xl" />
-              <div className="h-28 bg-slate-200 rounded-2xl" />
+              <div className="h-28 bg-[#EFF6FF] rounded-lg" />
+              <div className="h-28 bg-[#ECFDF9] rounded-lg" />
+              <div className="h-28 bg-[#FFF1F3] rounded-lg" />
             </div>
-            <div className="h-56 bg-slate-200 rounded-2xl" />
+            <div className="h-56 bg-[#F4F5F7] rounded-lg" />
           </div>
         </div>
       ) : (
